@@ -1,0 +1,1658 @@
+﻿using IdentityModel.Client;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Monitoring.Models;
+using Monitoring.Models.DTO;
+using Newtonsoft.Json;
+using NuGet.Common;
+using System.Globalization;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using static Monitoring.Controllers.HomeController;
+
+namespace Monitoring.APIResponses
+{
+    public class EndagentAPI
+    {
+
+
+        public async Task<List<EADeviceDTO>> GetEADevice(string orgId, string baseUrl, string endPoint, string apikeyheader, string apikey)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Add(apikeyheader, apikey);
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{endPoint}/{orgid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (!string.IsNullOrEmpty(responseContent))
+                        {
+                            // Deserialize the JSON response into a list of EADeviceDTO objects
+                            List<EADeviceDTO> devices = JsonConvert.DeserializeObject<List<EADeviceDTO>>(responseContent);
+                            foreach (var device in devices)
+                            {
+                                if (device.MappedTo == "UnMapped")
+                                {
+                                    device.MappedSince = "-";
+                                }
+                                else if (device.MappedSince != null)
+                                {
+                                    DateTime dateTime = DateTime.Parse(device.MappedSince);
+                                    string dateString = dateTime.ToString("yyyy-MM-dd");
+                                    device.MappedSince = dateString;
+                                }
+
+                            }
+
+                            // Return the list of EADeviceDTO objects
+                            return devices;
+                        }
+                    }
+                    return null;
+                }
+                //JSONString = JsonConvert.SerializeObject(ds.Tables[0]);
+                //return Json(JSONString);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<EASpecificationsDTO> GetSystemOverview(string orgId, string user, string baseUrl, string getSysOverviewUrl, string eaApiTokenHeader, string? eaApiToken, string assetID)
+        {
+            try
+            {
+                string org = orgId;
+
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    //httpClient.SetBearerToken(eaApiToken);
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getSysOverviewUrl}/{user}/{org}/{assetID}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (!string.IsNullOrEmpty(responseContent))
+                        {
+                            // Deserialize the JSON response into a list of EADeviceDTO objects
+                            EASpecificationsDTO device = JsonConvert.DeserializeObject<EASpecificationsDTO>(responseContent);
+
+                            // Return the list of EADeviceDTO objects
+                            return device;
+                        }
+                    }
+                    return null;
+                }
+                //JSONString = JsonConvert.SerializeObject(ds.Tables[0]);
+                //return Json(JSONString);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<AppsDTO>> GetApps(string orgId, string user, string baseUrl, string getEaAppsUrl, string eaApiTokenHeader, string? eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getEaAppsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        if (responseContent != null)
+                        {
+                            List<AppsDTO> apps = JsonConvert.DeserializeObject<List<AppsDTO>>(responseContent);
+                            return apps;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<PatchesDTO>> GetPatches(string orgId, string user, string baseUrl, string getEaUpdatesUrl, string eaApiTokenHeader, string? eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getEaUpdatesUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        if (responseContent != null)
+                        {
+                            List<PatchesDTO> patches = JsonConvert.DeserializeObject<List<PatchesDTO>>(responseContent);
+                            foreach (PatchesDTO patch in patches)
+                            {
+                                if (patch.InstalledOn != "-")
+                                {
+                                    string[] dateString = patch.InstalledOn.Split(' ');
+
+                                    // Check if there are at least two parts (date and time)
+                                    if (dateString.Length >= 2)
+                                    {
+                                        // Get the date part (the first part) and format it as "dd/MM/yyyy"
+                                        string[] datePart = dateString[0].Split("/");
+                                        if (datePart.Length >= 2)
+                                        {
+                                            string date = datePart[1] + "-" + datePart[0] + "-" + datePart[2];
+                                        }
+                                    }
+                                }
+                            }
+                            return patches;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<PortsDTO>> GetPorts(string orgId, string user, string baseUrl, string getEaPortsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getEaPortsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<PortsDTO> patches = JsonConvert.DeserializeObject<List<PortsDTO>>(responseContent);
+                            return patches;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<TagsDTO>> GetTags(string orgId, string baseUrl, string endPoint, string apikeyheader, string apikey)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Add(apikeyheader, apikey);
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{endPoint}/{orgid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (!string.IsNullOrEmpty(responseContent))
+                        {
+                            // Deserialize the JSON response into a list of EADeviceDTO objects
+                            List<TagsDTO> tags = JsonConvert.DeserializeObject<List<TagsDTO>>(responseContent);
+
+
+                            // Return the list of EADeviceDTO objects
+                            return tags;
+                        }
+                    }
+                    return null;
+                }
+                //JSONString = JsonConvert.SerializeObject(ds.Tables[0]);
+                //return Json(JSONString);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<string> UpdateTag(string orgId, string baseUrl, string endPoint, int tagId, bool action, string apikeyheader, string apikey)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Add(apikeyheader, apikey);
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{endPoint}/{orgid}-{tagId}-{action}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (!string.IsNullOrEmpty(responseContent))
+                        {
+                            // Deserialize the JSON response into a list of EADeviceDTO objects
+                            string status = JsonConvert.DeserializeObject<string>(responseContent);
+
+
+                            // Return the list of EADeviceDTO objects
+                            return status;
+                        }
+                    }
+                    return null;
+                }
+                //JSONString = JsonConvert.SerializeObject(ds.Tables[0]);
+                //return Json(JSONString);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<BLsoftwareListDTO>> GetBLsoftwares(string orgId, string user, string baseUrl, string getEaBLSwUrl, string eaApiTokenHeader, string eaApiToken)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getEaBLSwUrl}/{user}/{orgid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<BLsoftwareListDTO> blsw = JsonConvert.DeserializeObject<List<BLsoftwareListDTO>>(responseContent);
+                            return blsw;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<string> GetActiveStatus(string orgId, string user, string assetId, string baseUrl, string endPoint, string eaApiTokenHeader, string? eaApiToken)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{endPoint}/{orgId}/{user}/{assetId}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        if (responseContent != null)
+                        {
+                            ActiveStatusDTO activeStatus = JsonConvert.DeserializeObject<ActiveStatusDTO>(responseContent);
+                            return activeStatus.Status;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<AssetApprovalDTO>> GetAssetApprovals(string orgId, string baseUrl, string endPoint, string apikeyheader, string apikey)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Add(apikeyheader, apikey);
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{endPoint}/{orgid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (!string.IsNullOrEmpty(responseContent))
+                        {
+                            // Deserialize the JSON response into a list of EADeviceDTO objects
+                            List<AssetApprovalDTO> approvals = JsonConvert.DeserializeObject<List<AssetApprovalDTO>>(responseContent);
+
+
+                            // Return the list of EADeviceDTO objects
+                            return approvals;
+                        }
+                    }
+                    return null;
+                }
+                //JSONString = JsonConvert.SerializeObject(ds.Tables[0]);
+                //return Json(JSONString);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<string> ApproveMonitoring(int orgId, string assetId, string isApproved, string baseUrl, string endPoint, string apikeyheader, string apikey)
+        {
+            int orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Add(apikeyheader, apikey);
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{endPoint}/{orgid}/{assetId}/{isApproved}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (!string.IsNullOrEmpty(responseContent))
+                        {
+                            // Deserialize the JSON response into a list of EADeviceDTO objects
+                            string status = JsonConvert.DeserializeObject<string>(responseContent);
+
+
+                            // Return the list of EADeviceDTO objects
+                            return status;
+                        }
+                    }
+                    return null;
+                }
+                //JSONString = JsonConvert.SerializeObject(ds.Tables[0]);
+                //return Json(JSONString);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<ServicesDTO>> GetServices(string orgId, string user, string baseUrl, string getServiceDetailsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getServiceDetailsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<ServicesDTO> services = JsonConvert.DeserializeObject<List<ServicesDTO>>(responseContent);
+                            return services;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<ProcessesDTO>> GetProcesses(string orgId, string user, string baseUrl, string getProcessDetailsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getProcessDetailsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<ProcessesDTO> processes = JsonConvert.DeserializeObject<List<ProcessesDTO>>(responseContent);
+                            return processes;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<ProcessorDTO>> GetProcessors(string orgId, string user, string baseUrl, string getProcessorDetailsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getProcessorDetailsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<ProcessorDTO> processors = JsonConvert.DeserializeObject<List<ProcessorDTO>>(responseContent);
+                            return processors;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<RAMDetailsDTO>> GetRAMDetails(string orgId, string user, string baseUrl, string getRAMDetailsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getRAMDetailsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<RAMDetailsDTO> rAMDetails = JsonConvert.DeserializeObject<List<RAMDetailsDTO>>(responseContent);
+                            return rAMDetails;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<ScheduledTasksDTO>> GetScheduledTasks(string orgId, string user, string baseUrl, string getScheduledTasksUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getScheduledTasksUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<ScheduledTasksDTO> scheduledTasks = JsonConvert.DeserializeObject<List<ScheduledTasksDTO>>(responseContent);
+                            return scheduledTasks;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<StorageVolumesDTO>> GetStorageVolumes(string orgId, string user, string baseUrl, string getStorageVolumesUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getStorageVolumesUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<StorageVolumesDTO> storageVolumes = JsonConvert.DeserializeObject<List<StorageVolumesDTO>>(responseContent);
+                            return storageVolumes;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<GraphicCardsDTO>> GetGraphicCards(string orgId, string user, string baseUrl, string getGraphicCardsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getGraphicCardsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<GraphicCardsDTO> details = JsonConvert.DeserializeObject<List<GraphicCardsDTO>>(responseContent);
+                            return details;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<NetworkAdaptersDTO>> GetNetworkAdapters(string orgId, string user, string baseUrl, string getNetworkAdaptersUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getNetworkAdaptersUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<NetworkAdaptersDTO> details = JsonConvert.DeserializeObject<List<NetworkAdaptersDTO>>(responseContent);
+                            return details;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<RAIDControllersDTO>> GetRAIDControllers(string orgId, string user, string baseUrl, string getRAIDControllersUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getRAIDControllersUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<RAIDControllersDTO> details = JsonConvert.DeserializeObject<List<RAIDControllersDTO>>(responseContent);
+                            return details;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<PhysicalDrivesDTO>> GetPhysicalDrives(string orgId, string user, string baseUrl, string getPhysicalDrivesUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getPhysicalDrivesUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<PhysicalDrivesDTO> details = JsonConvert.DeserializeObject<List<PhysicalDrivesDTO>>(responseContent);
+                            return details;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<OtherSpecificationDTO> GetOtherSpecifications(string orgId, string user, string baseUrl, string getOtherSpecificationsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getOtherSpecificationsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        if (responseContent != null)
+                        {
+                            List<OtherSpecificationDTO> detailsList = JsonConvert.DeserializeObject<List<OtherSpecificationDTO>>(responseContent);
+
+                            // Assuming you are expecting a list of details, you might need to handle this appropriately based on your API response.
+
+                            // For example, if you are expecting a single object in the array, you can get the first item:
+                            OtherSpecificationDTO details = detailsList.FirstOrDefault();
+
+                            return details;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception appropriately
+                return null;
+            }
+
+
+        }
+
+        public async Task<List<AccountDTO>> GetAccounts(string orgId, string user, string baseUrl, string getAccountsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getAccountsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<AccountDTO> accounts = JsonConvert.DeserializeObject<List<AccountDTO>>(responseContent);
+                            return accounts;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<ActivePortDTO>> GetActivePorts(string orgId, string user, string baseUrl, string getActivePortsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getActivePortsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<ActivePortDTO> activePorts = JsonConvert.DeserializeObject<List<ActivePortDTO>>(responseContent);
+                            return activePorts;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+
+        public async Task<List<ActiveNetworkDetailDTO>> GetActiveNetworkDetails(string orgId, string user, string baseUrl, string getActiveNetworkDetailsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getActiveNetworkDetailsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<ActiveNetworkDetailDTO> activePorts = JsonConvert.DeserializeObject<List<ActiveNetworkDetailDTO>>(responseContent);
+                            return activePorts;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<DiskDetailDTO>> GetDiskDetails(string orgId, string user, string baseUrl, string getDiskDetailsUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getDiskDetailsUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<DiskDetailDTO> diskDetails = JsonConvert.DeserializeObject<List<DiskDetailDTO>>(responseContent);
+                            return diskDetails;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+        public async Task<ResourceUtilDTO> GetResourceUtil(string orgId, string user, string baseUrl, string getResourceUtilUrl, string eaApiTokenHeader, string eaApiToken, string assetid)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getResourceUtilUrl}/{user}/{orgid}/{assetid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<ResourceUtilDTO> result = JsonConvert.DeserializeObject<List<ResourceUtilDTO>>(responseContent);
+                            return result.FirstOrDefault();
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<NotificationDTO>> GetNotifications(string orgId, string user, string baseUrl, string getNotificationsUrl, string eaApiTokenHeader, string eaApiToken)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getNotificationsUrl}/{user}/{orgid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+
+
+                        if (responseContent != null)
+                        {
+                            List<NotificationDTO> notifications = JsonConvert.DeserializeObject<List<NotificationDTO>>(responseContent);
+                            return notifications;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<string> IsReadNotification(string orgId, string user, string baseUrl, string IsReadNotificationUrl, string eaApiTokenHeader, string eaApiToken, int id)
+        {
+            string orgid = orgId;
+            try
+            {
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{IsReadNotificationUrl}/{user}/{orgid}/{id}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        return "ok";
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception appropriately
+                throw;
+            }
+        }
+
+        public async Task<string> MarkAllAsRead(string orgId, string user, string baseUrl, string MarkAllAsReadUrl, string eaApiTokenHeader, string eaApiToken)
+        {
+            string orgid = orgId;
+            try
+            {
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{MarkAllAsReadUrl}/{user}/{orgid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        return "ok";
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception appropriately
+                throw;
+            }
+        }
+
+        public async Task<string> DeleteNotification(string orgId, string user, string baseUrl, string DeleteNotificationUrl, string eaApiTokenHeader, string eaApiToken, int id)
+        {
+            string orgid = orgId;
+            try
+            {
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.DeleteAsync($"{baseUrl}{DeleteNotificationUrl}/{user}/{orgid}/{id}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        return "ok";
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception appropriately
+                throw;
+            }
+        }
+
+        public async Task<List<DeviceDTO>> GetDevices(string orgId, string user, string baseUrl, string getDevicesUrl, string eaApiTokenHeader, string eaApiToken)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getDevicesUrl}/{user}/{orgid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        if (responseContent != null)
+                        {
+                            List<DeviceDTO> devices = JsonConvert.DeserializeObject<List<DeviceDTO>>(responseContent);
+                            return devices;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public async Task<bool> ApproveDevice(string id, string user, string baseUrl, string approveDeviceUrl, string eaApiTokenHeader, string eaApiToken)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{approveDeviceUrl}/{user}/{id}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<bool> DeleteDevice(string id, string user, string baseUrl, string deleteDeviceUrl, string eaApiTokenHeader, string eaApiToken)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.DeleteAsync($"{baseUrl}{deleteDeviceUrl}/{user}/{id}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        // Dev: Viraj; Date: 06-04-2024
+        public async Task<string> GetCurrentVersion(string DeviceID, string baseUrl, string getCurrentVersionUrl)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getCurrentVersionUrl}/{DeviceID}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        return responseContent;
+                    }
+                    return "";
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        // Dev: Viraj; Date: 06-04-2024
+        public async Task<string> IsInQueue(string baseUrl, string isInQueueWithDeviceIDUrl, string DeviceID)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{isInQueueWithDeviceIDUrl}/{DeviceID}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        return responseContent;
+                    }
+                    return "";
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        // Dev: Viraj; Date: 06-04-2024
+        public async Task<string> GetLatestVersion(string baseUrl, string getLatestVersionUrl)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getLatestVersionUrl}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        return responseContent;
+                    }
+                    return "";
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        // Dev: Viraj; Date: 06-04-2024
+        public async Task AddDeviceInPatchQueue(int DeviceID, string baseUrl, string addDeviceInPatchQueueUrl)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{addDeviceInPatchQueueUrl}/{DeviceID}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                    }
+                   
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        // Dev: Viraj; Date: 09-05-2024
+        public async Task<List<DeviceDTO>> GetDevicesForUpdate(string orgId, string user, string baseUrl, string getDevicesForUpdateUrl, string eaApiTokenHeader, string eaApiToken)
+        {
+            string orgid = orgId;
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.SetBearerToken(eaApiToken);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{baseUrl}{getDevicesForUpdateUrl}/{user}/{orgid}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+
+                        if (responseContent != null)
+                        {
+                            List<DeviceDTO> devices = JsonConvert.DeserializeObject<List<DeviceDTO>>(responseContent);
+                            return devices;
+                        }
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        // Consuming the GetMastersDataForEndAgentForm API
+        public async Task<List<GetMasters>> GetMastersDataFromITAM(int orgId)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Add("x-api-key", "E715A9ADACFC455A872139C49E3F19C8");
+                    HttpResponseMessage response = await httpClient.GetAsync($"https://localhost:6002/api/itam/masters/{orgId}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        List<GetMasters> mastersData = JsonConvert.DeserializeObject<List<GetMasters>>(responseContent);
+                        return mastersData;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        // Consuming the AddWorkstation API
+        public async Task<string> AddWorkstation(AddWorkstationDTO workstation)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Add("x-api-key", "E715A9ADACFC455A872139C49E3F19C8");
+                    
+
+                    HttpResponseMessage response = await httpClient.PostAsJsonAsync($"https://localhost:6002/api/itam/workstation", workstation);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        return responseContent;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        // Consuming the GetMastersDataForEndAgentForm API
+        public async Task<BIOSDetailsDTO> GetBIOS(string ID, string token)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    HttpResponseMessage response = await httpClient.GetAsync($"https://localhost:6001/api/EndAgent/GetBIOS/{ID}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        BIOSDetailsDTO mastersData = JsonConvert.DeserializeObject<BIOSDetailsDTO>(responseContent);
+                        return mastersData;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<string> CheckBIOS(ITAMBIOSDetailsDTO biosDetails, string orgID)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Add("x-api-key", "E715A9ADACFC455A872139C49E3F19C8");
+                    HttpResponseMessage response = await httpClient.PostAsJsonAsync($"https://localhost:6002/api/itam/checkbios/{orgID}", biosDetails);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        return responseContent;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<List<string>> GetAssetIDs(int orgId)
+        {
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Add("x-api-key", "E715A9ADACFC455A872139C49E3F19C8");
+                    HttpResponseMessage response = await httpClient.GetAsync($"https://localhost:6002/api/itam/getassetids/{orgId}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        List<string> mastersData = JsonConvert.DeserializeObject<List<string>>(responseContent);
+                        return mastersData;
+                    }
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+
+    }
+}

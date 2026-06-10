@@ -1,0 +1,305 @@
+﻿using IdentityModel.Client;
+using IdentityModel;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Monitoring.Models;
+using Monitoring.Models.DTO;
+using Newtonsoft.Json;
+using NuGet.ContentModel;
+using System.Data;
+using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using System.ComponentModel;
+using Monitoring.APIResponses;
+
+namespace Monitoring.Controllers
+{
+    [Authorize]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
+
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+        private readonly IConfiguration _configuration;
+        private readonly string ITAMApiKeyHeader;
+        private readonly string ITAMApiKey;
+        private readonly string eaApiKeyHeader;
+        private readonly string eaApiKey;
+        private readonly string loginStatusUrl;
+        private readonly string baseUrl;
+        private readonly string getDevicesUrl;
+        private EndagentAPI eaAPI = new EndagentAPI();
+
+
+        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
+        {
+            _logger = logger;
+            _configuration = configuration;
+            ITAMApiKeyHeader = configuration.GetValue<string>("ApiEndPoints:ITAMApiKeyHeader");
+            ITAMApiKey = configuration.GetValue<string>("ApiEndPoints:ITAMApiKey");
+            eaApiKeyHeader = configuration.GetValue<string>("ApiEndPoints:eaApiKeyHeader");
+            eaApiKey = configuration.GetValue<string>("ApiEndPoints:eaApiKey");
+            loginStatusUrl = configuration.GetValue<string>("ApiEndPoints:loginStatusUrl");
+            baseUrl = _configuration.GetValue<string>("ApiEndPoints:baseUrl");
+            getDevicesUrl = _configuration.GetValue<string>("ApiEndPoints:getDevicesUrl");
+
+        }
+
+        public async  Task<IActionResult> Index()
+        {
+            try
+            {
+                string role = HttpContext.User.FindFirst("role")?.Value;
+                List<string> values = JsonConvert.DeserializeObject<List<string>>(role);
+
+                // Now 'values' should contain ["admin", "5"]
+
+                if (values.Count <= 0 || (values[0] != "Admin" && values[0] != "SuperAdmin" && values[0] != "SuperAdmin2"))
+                {
+                    return View("AccessDenied");
+
+                }
+
+                // Dev: Viraj; Date: 09-05-2024
+                if (values[0] == "SuperAdmin2")
+                {
+                    return RedirectToAction("AgentManager","Workstation");
+                }
+
+                string? token = await HttpContext.GetTokenAsync("access_token");
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+                var tokenExpiration = jwtToken.ValidTo;
+
+                if (tokenExpiration < DateTime.UtcNow)
+                {
+                    // If the access token has expired, redirect the user to the logout action
+                    return RedirectToAction("Logout", "Account");
+                }
+
+                return View();
+            }
+            catch(Exception ex)
+            {
+                string user = HttpContext.User.FindFirst("name")?.Value;
+                _logger.LogInformation($"User: {user}\nException: {ex}");
+                return NotFound();
+            }
+        }
+
+        public IActionResult GetApiDetails()
+        {
+            string user = HttpContext.User.FindFirst("name")?.Value;
+            var apiUrl = $"{loginStatusUrl}/{user}";
+            var apiKey = ITAMApiKeyHeader;
+            var apiValue = ITAMApiKey;
+
+            var apiDetails = new ApiDetails
+            {
+                ApiUrl = apiUrl,
+                ApiKey = apiKey,
+                ApiValue = apiValue
+            };
+
+            return Json(apiDetails);
+        }
+
+        public IActionResult Privacy()
+        {
+            try
+            {
+                string role = HttpContext.User.FindFirst("role")?.Value;
+                List<string> values = JsonConvert.DeserializeObject<List<string>>(role);
+
+                // Now 'values' should contain ["admin", "5"]
+
+                if (values.Count <= 0 || values[0] != "Admin" && values[0] != "SuperAdmin")
+                {
+                    return View("AccessDenied");
+
+                }
+                return View();
+            }
+            catch (Exception ex)
+            {
+                string user = HttpContext.User.FindFirst("name")?.Value;
+                _logger.LogInformation($"User: {user}\nException: {ex}");
+                return NotFound();
+            }
+        }
+
+        
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            string role = HttpContext.User.FindFirst("role")?.Value;
+            List<string> values = JsonConvert.DeserializeObject<List<string>>(role);
+
+            // Now 'values' should contain ["admin", "5"]
+
+            if (values.Count <= 0 || values[0] != "Admin" && values[0] != "SuperAdmin")
+            {
+                return View("AccessDenied");
+
+            }
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+
+        public async Task<IActionResult> GetLoginStatus()
+        {
+            string user = HttpContext.User.FindFirst("name")?.Value;
+
+            try
+            {
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //Donot Use in Production (after Implementing SSL)
+                HttpClientHandler handler = new HttpClientHandler();
+
+                // Disable SSL/TLS validation by accepting all certificates
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    httpClient.DefaultRequestHeaders.Add(ITAMApiKeyHeader, ITAMApiKey);
+
+                    HttpResponseMessage response = await httpClient.GetAsync($"{loginStatusUrl}/{user}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        if (responseContent != null)
+                        {
+                            string IsOnline = JsonConvert.DeserializeObject<string>(responseContent);
+                            return Json(IsOnline);
+                        }
+                    }
+                    return Json("none");
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return Json("none");
+            }
+        }
+
+        // Home screen Pi Chart 1
+        [HttpGet]
+        public async Task<IActionResult> GetApprovedVsUnapprovedDevices()
+        {
+            try
+            {
+                string role = HttpContext.User.FindFirst("role")?.Value;
+                List<string> values = JsonConvert.DeserializeObject<List<string>>(role);
+
+                // Now 'values' should contain ["admin", "5"]
+
+                if (values.Count <= 0 || values[0] != "Admin" && values[0] != "SuperAdmin")
+                {
+                    return View("AccessDenied");
+
+                }
+                string orgId = HttpContext.User.FindFirst("org")?.Value;
+                string user = HttpContext.User.FindFirst("name")?.Value;
+                string? token = await HttpContext.GetTokenAsync("access_token");
+
+                List<DeviceDTO> eaDevices = await eaAPI.GetDevices(orgId, user, baseUrl, getDevicesUrl, eaApiKeyHeader, token);
+                
+                if (eaDevices == null || eaDevices.Count() == 0)
+                {
+                    _logger.LogInformation("Error in Workstation/Index action while using GetEADevice.");
+                    return null;
+                }
+                
+                int approved = eaDevices.Where(d => d.IsApproved == true).ToList().Count();
+                int unApproved = eaDevices.Where(d => d.IsApproved == false).ToList().Count();
+                List<int> result = new List<int>();
+                result.Add(approved);
+                result.Add(unApproved);
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                string user = HttpContext.User.FindFirst("name")?.Value;
+                _logger.LogInformation($"User: {user}\nException: {ex}");
+                return BadRequest();
+            }
+        }
+
+        // Home Screen Pi Chart 2
+        [HttpGet]
+        public async Task<IActionResult> GetInITAMvsOutITAM()
+        {
+            try
+            {
+                string role = HttpContext.User.FindFirst("role")?.Value;
+                List<string> values = JsonConvert.DeserializeObject<List<string>>(role);
+
+                // Now 'values' should contain ["admin", "5"]
+
+                if (values.Count <= 0 || values[0] != "Admin" && values[0] != "SuperAdmin")
+                {
+                    return View("AccessDenied");
+
+                }
+                string orgId = HttpContext.User.FindFirst("org")?.Value;
+                string user = HttpContext.User.FindFirst("name")?.Value;
+                string? token = await HttpContext.GetTokenAsync("access_token");
+
+                List<DeviceDTO> eaDevices = await eaAPI.GetDevices(orgId, user, baseUrl, getDevicesUrl, eaApiKeyHeader, token);
+                if (eaDevices == null)
+                {
+                    return NotFound(new { message = "eaDevices API error." });
+                }
+                eaDevices = eaDevices.Where(a => a.IsApproved == true).ToList();
+                if (eaDevices == null || eaDevices.Count() == 0)
+                {
+                    _logger.LogInformation("Error in Workstation/Index action while using GetEADevice.");
+                    return View("Error404");
+                }
+                int inITAM = 0;
+                int outITAM = 0;
+                foreach (var device in eaDevices)
+                {
+                    BIOSDetailsDTO model = await eaAPI.GetBIOS(device.ID.ToString(), token);
+                    ITAMBIOSDetailsDTO temp = new ITAMBIOSDetailsDTO();
+                    temp.AssetID = "";
+                    temp.BIOS_SN = model.BIOS;
+                    temp.TrackerID = model.ID;
+                    string check = await eaAPI.CheckBIOS(temp, orgId);
+                    if (check != null)
+                    {
+                        if (check.Contains("exists")||check.Contains("link"))
+                        {
+                            inITAM++;
+                        }
+                        else if (check.ToString() == "false")
+                        {
+                            outITAM++;
+                        }
+                    }
+                }
+
+                List<int> result = new List<int>
+                {
+                    inITAM,
+                    outITAM
+                };
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                string user = HttpContext.User.FindFirst("name")?.Value;
+                _logger.LogInformation($"User: {user}\nException: {ex}");
+                return BadRequest();
+            }
+        }
+    }
+}

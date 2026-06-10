@@ -1,0 +1,78 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ApiEndPoints": {
+    // EA API URL
+    "baseUrl": "https://localhost:6001",
+    "getSysOverviewUrl": "/api/EndAgent/GetSpecifications",
+    "getEaUpdatesUrl": "/api/EndAgent/GetEAUpdates",
+    "getEaAppsUrl": "/api/EndAgent/GetEAInstalledApps",
+    "getEaPortsUrl": "/api/EndAgent/GetEAPorts",
+    "getAssetStatusUrl": "/api/EndAgent/GetAssetStatus",
+    "getEaBLSwUrl": "/api/EndAgent/GetBLsoftwares",
+    "getActiveStatusUrl": "/api/EndAgent/ActiveStatus",
+    "getServiceDetailsUrl": "/api/EndAgent/GetServiceDetails",
+    "getProcessDetailsUrl": "/api/EndAgent/GetProcessDetails",
+    "getProcessorDetailsUrl": "/api/EndAgent/GetProcessorDetails",
+    "getRAMDetailsUrl": "/api/EndAgent/GetRAMDetails",
+    "getScheduledTasksUrl": "/api/EndAgent/GetScheduledTasks",
+    "getStorageVolumesUrl": "/api/EndAgent/GetStorageVolumes",
+    "getNetworkAdaptersUrl": "/api/EndAgent/GetNetworkAdapters",
+    "getGraphicCardsUrl": "/api/EndAgent/GetGraphicCards",
+    "getRAIDControllersUrl": "/api/EndAgent/GetRAIDControllers",
+    "getPhysicalDrivesUrl": "/api/EndAgent/GetPhysicalDrives",
+    "getOtherSpecificationsUrl": "/api/EndAgent/GetOtherSpecifications",
+    "getAccountsUrl": "/api/EndAgent/GetEA_Accounts",
+    "getActivePortsUrl": "/api/EndAgent/GetEA_ActivePorts",
+    "getActiveNetworkDetailsUrl": "/api/EndAgent/GetEA_ActiveNetworkDetails",
+    "getDiskDetailsUrl": "/api/EndAgent/GetEA_DiskDetails",
+    "getResourceUtilUrl": "/api/EndAgent/GetResourceUtil",
+    "getNotificationsUrl": "/api/EndAgent/GetNotifications",
+    "IsReadNotificationUrl": "/api/EndAgent/IsReadNotification",
+    "MarkAllAsReadUrl": "/api/EndAgent/MarkAllAsRead",
+    "DeleteNotificationUrl": "/api/EndAgent/DeleteNotification",
+    "getDevicesUrl": "/api/EndAgent/GetDevices",
+    "getDevicesForUpdateUrl": "/api/EndAgent/GetDevicesForUpdate",
+    "approveDeviceUrl": "/api/EndAgent/ApproveDevice",
+    "deleteDeviceUrl": "/api/EndAgent/DeleteDevice",
+    "isAgentInstalledUrl": "/api/Version/IsAgentInstalled",
+    "eaApiKeyHeader": "x-api-key",
+    "eaApiKey": "042E709DBBDD4FE19406298B65EEBF80",
+    "loginStatusUrl": "https://localhost:6002/api/itam/ea/getloginstatus",
+
+    // Identity Server Link
+    "ITAMUrl": "https://localhost:5001",
+
+
+    // ITAM API URL
+    "ITAMApiKeyHeader": "x-api-key",
+    "ITAMApiKey": "E715A9ADACFC455A872139C49E3F19C8",
+    "ITAMbaseUrl": "https://localhost:6002",
+    "getEaDevicesUrl": "/api/itam/ea/geteadevice",
+    "getTagsUrl": "/api/itam/ea/gettags",
+    "updateTagUrl": "/api/itam/ea/updatetag",
+    "getApprovalsUrl": "/api/itam/ea/getassetapprovals",
+    "approveMonitoringUrl": "/api/itam/ea/approvemonitoring"
+  },
+
+  //Rate Limiting for Multiple Requests Within a Specific TimePeriod
+  "IpRateLimiting": {
+    "EnableEndpointRateLimiting": true,
+    "StackBlockedRequests": false,
+    "RealIpHeader": "X-Real-IP",
+    "ClientIdHeader": "X-ClientId",
+    "HttpStatusCode": 429,
+    "GeneralRules": [
+      {
+        "Endpoint": "*",
+        "Period": "1m",
+        "Limit": 60
+      }
+    ]
+  }
+}
