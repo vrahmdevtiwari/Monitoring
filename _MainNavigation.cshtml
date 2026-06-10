@@ -1,0 +1,95 @@
+﻿<div class="primary-nav">
+    <button id="btnhamburg" style="color:white; background-color:#192d4b" href="#" class="hamburger open-panel nav-toggle hamburger_icon" data-icon-content="2630">
+        <span class="screen-reader-text">Menu</span>
+    </button>
+    <!-- Sidebar Menu -->
+    <nav role="navigation" class="menu" id="MainBodys">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <li class="nav-item" id="nav-list">
+                <a asp-area="" id="textcolor" asp-controller="Home" asp-action="Index" title="Home" class="nav-link">
+                    Home
+                </a>
+                <span class="icon"> <i class="nav-icon fas fa-home"></i> </span>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link " id="WorkStationDropdownLink" data-dropdown-list="Workstation-submenu" href="javascript:void(0)" title="Masters" onclick="subMenu($(this))">
+                    Workstations
+                    <span class="downarrow" style="color: white;"> <i class="right fas fa-angle-left"></i></span>
+                </a>
+                <span class="icon"> <i class="nav-icon fas fa-desktop"></i> </span>                            
+                <ul class="nav nav-treeview" id="Workstation-submenu" style="display: none; flex-direction: column; width:100%;">
+                    <li class="nav-item" style="width:100%;">
+                        <a class="nav-link" asp-area="" asp-action="Index" asp-controller="Workstation" title="Devices">
+                            Devices
+                        </a>
+                    </li>
+                    <li class="nav-item" style="width:100%;">
+                        <a class="nav-link" asp-area="" asp-action="Approvals" asp-controller="Workstation" title="Approvals">
+                            Approvals
+                        </a>
+                    </li>
+                    <li class="nav-item" style="width:100%;">
+                        <a class="nav-link" asp-area="" asp-action="Index" asp-controller="OSPatchManagement" title="Patch Management">
+                            Patch Management
+                        </a>
+                    </li>
+                    <li class="nav-item" style="width:100%;">
+                        <a class="nav-link" asp-area="" asp-action="Index" asp-controller="AppManagement" title="App Management">
+                            App Management
+                        </a>
+                    </li>
+                </ul>
+              </li>
+              <li class="nav-item" id="nav-list">
+                    <a class="nav-link" id="textcolor" asp-area="" asp-controller="" asp-action="" title="Application Server">
+                        Application Servers
+                    </a>
+                    <span class="icon"> <i class="nav-icon fas fa-server"></i> </span>
+                </li>
+                 <li class="nav-item" id="nav-list">
+                    <a class="nav-link" id="textcolor" asp-area="" asp-controller="" asp-action="" title="APIs">
+                        APIs
+                    </a>
+                    <span class="icon"> <i class="nav-icon fas fa-network-wired"></i> </span>
+                @* <box-icon id="nav-icon nav-icon-api" name='network-chart' type='solid' style="position:relative; top:8px; left:-12px; color:#fff;"></box-icon> *@
+                </li>
+                <li class="nav-item" id="nav-list">
+                    <a class="nav-link" id="textcolor" asp-area="" asp-controller="" asp-action="" title="Database">
+                        Database Server
+                    </a>
+                    <span class="icon"> <i class="nav-icon fas fa-database"></i> </span>
+                </li>
+                <li class="nav-item" id="nav-list">
+                    <a class="nav-link" id="textcolor" asp-area="" asp-controller="" asp-action="" title="Cloud Server">
+                        Cloud Servers
+                    </a>
+                    <span class="icon"> <i class="nav-icon fas fa-cloud"></i> </span>
+                </li>
+
+                <li class="nav-item" id="nav-list">
+                    <a class="nav-link" id="textcolor" asp-area="" asp-controller="" asp-action="" title="Virtual Machine">
+                        Virtual Machines
+                    </a>
+                    <span class="icon"> <i class="nav-icon fas fa-box"></i> </span>
+                </li>
+                <li class="nav-item" id="nav-list">
+                    <a class="nav-link" id="textcolor" asp-area="" asp-controller="" asp-action="" title="Mobile Devices">
+                        Mobile Devices
+                    </a>
+                    <span class="icon"> <i class="nav-icon fas fa-tablet"></i> </span>
+                </li>
+                <li class="nav-item" id="nav-list">
+                    <a class="nav-link" id="textcolor" asp-area="" asp-controller="" asp-action="" title="Tags">
+                        Tags
+                    </a>
+                    <span class="icon"> <i class="nav-icon fas fa-tags"></i> </span>
+                </li>
+                <li class="nav-item" id="nav-list">
+                    <a class="nav-link" id="textcolor" asp-area="" asp-controller="" asp-action="" title="Notifications">
+                        Notifications
+                    </a>
+                    <span class="icon"> <i class="nav-icon fas fa-bell"></i> </span>
+                </li>
+          </ul>
+    </nav>
+</div>

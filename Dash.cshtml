@@ -1,0 +1,178 @@
+﻿@* Index.cshtml *@
+@{
+    ViewData["Title"] = "Windows Patch KPI Dashboard";
+}
+
+<div id="kpi-root" class="kpi-root">
+
+    <div id="loading-state" class="state-box">
+        <div class="spinner"></div>
+        <p>Loading patch data...</p>
+    </div>
+
+    <div id="error-state" class="state-box" style="display:none;">
+        <p class="error-msg" id="error-text"></p>
+    </div>
+
+    <div id="dashboard" style="display:none;">
+
+        <!-- ── KPI Cards ── -->
+        <div class="kpi-grid">
+            <div class="kpi-card total">
+                <p class="kpi-label">Total Windows Patches</p>
+                <p class="kpi-count" id="kpi-total">0</p>
+            </div>
+            <div class="kpi-card success">
+                <p class="kpi-label">Success Installs</p>
+                <p class="kpi-count" id="kpi-success">0</p>
+            </div>
+            <div class="kpi-card danger">
+                <p class="kpi-label">Failed Installs</p>
+                <p class="kpi-count" id="kpi-failed">0</p>
+            </div>
+            <div class="kpi-card warning">
+                <p class="kpi-label">Missing Patches</p>
+                <p class="kpi-count" id="kpi-missing">0</p>
+            </div>
+            <div class="kpi-card info">
+                <p class="kpi-label">Assets Awaiting Reboot</p>
+                <p class="kpi-count" id="kpi-reboot">0</p>
+            </div>
+        </div>
+
+        <!-- ── Status Bar Chart ── -->
+        <div class="chart-card mb-16">
+            <p class="chart-title">Windows patches by status</p>
+            <div class="legend-row" id="status-legend"></div>
+            <div class="chart-wrap" style="height:200px;">
+                <canvas id="statusChart" role="img"
+                        aria-label="Bar chart showing patch status">
+                </canvas>
+            </div>
+        </div>
+
+        <!-- ── Bottom 3 Charts ── -->
+        <div class="bottom-grid">
+
+            <div class="chart-card">
+                <p class="chart-title">Missing patches by platform</p>
+                <div class="legend-row scrollable-legend" id="platform-legend"></div>
+                <div id="platform-no-data" class="no-data" style="display:none;">No data available</div>
+                <div class="chart-wrap" id="platform-chart-wrap" style="height:220px; display:none;">
+                    <canvas id="platformChart" role="img"
+                            aria-label="Pie chart of missing patches by platform">
+                    </canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <p class="chart-title">Missing patches by category</p>
+                <div class="legend-row scrollable-legend" id="category-legend"></div>
+                <div id="category-no-data" class="no-data" style="display:none;">No data available</div>
+                <div class="chart-wrap" id="category-chart-wrap" style="height:220px; display:none;">
+                    <canvas id="categoryChart" role="img"
+                            aria-label="Bar chart of missing patches by category">
+                    </canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <p class="chart-title">Missing patches by vendor</p>
+                <div class="legend-row scrollable-legend" id="vendor-legend"></div>
+                <div id="vendor-no-data" class="no-data" style="display:none;">No data available</div>
+                <div class="chart-wrap" id="vendor-chart-wrap" style="height:220px; display:none;">
+                    <canvas id="vendorChart" role="img"
+                            aria-label="Pie chart of missing patches by vendor">
+                    </canvas>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .kpi-root { padding: 10px 20px 0; box-sizing: border-box; }
+
+    .state-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+        color: #888;
+        font-size: 14px;
+    }
+    .error-msg { color: #E24B4A; font-size: 14px; margin: 0; }
+    .spinner {
+        width: 32px; height: 32px;
+        border: 3px solid #e0e0e0;
+        border-top-color: #378ADD;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 12px;
+    }
+    @@keyframes spin { to { transform: rotate(360deg); } }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0,1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .kpi-card {
+        background: #fff;
+        border: 0.5px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 14px 12px;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-sizing: border-box;
+    }
+    .kpi-label { font-size: 11px; font-weight: 500; color: #888; margin: 0; line-height: 1.4; }
+    .kpi-count { font-size: 32px; font-weight: 600; text-align: center; margin: 0; padding-top: 6px; line-height: 1; }
+    .kpi-card.total   .kpi-count { color: #534AB7; }
+    .kpi-card.success .kpi-count { color: #1D9E75; }
+    .kpi-card.danger  .kpi-count { color: #E24B4A; }
+    .kpi-card.warning .kpi-count { color: #BA7517; }
+    .kpi-card.info    .kpi-count { color: #185FA5; }
+
+    .chart-card { background: #fff; border: 0.5px solid #e0e0e0; border-radius: 12px; padding: 16px; box-sizing: border-box; }
+    .mb-16 { margin-bottom: 16px; }
+    .chart-title { font-size: 13px; font-weight: 500; color: #222; margin: 0 0 10px; }
+    .chart-wrap { position: relative; width: 100%; }
+
+    .bottom-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0,1fr));
+        gap: 12px;
+    }
+
+    .legend-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; font-size: 11px; color: #555; min-height: 18px; }
+    .scrollable-legend { max-height: 60px; overflow-y: auto; }
+    .legend-item { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .legend-dot  { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+    .no-data { text-align: center; padding: 40px 0; font-size: 13px; color: #bbb; }
+
+    @@media (max-width: 1100px) {
+        .kpi-grid    { grid-template-columns: repeat(3, minmax(0,1fr)); }
+        .bottom-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @@media (max-width: 768px) {
+        .kpi-grid    { grid-template-columns: repeat(2, minmax(0,1fr)); }
+        .bottom-grid { grid-template-columns: 1fr; }
+        .kpi-count   { font-size: 28px; }
+    }
+    @@media (max-width: 480px) {
+        .kpi-grid    { grid-template-columns: 1fr; }
+        .kpi-count   { font-size: 32px; }
+        .chart-card  { padding: 12px; }
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>        
+    <script src="~/js/cust/kpis.js" asp-append-version="true"></script>
+}

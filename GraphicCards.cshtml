@@ -1,0 +1,37 @@
+﻿@model List<Monitoring.Models.DTO.GraphicCardsDTO>
+
+
+
+<div class="main-container">
+    @* <h2>Services - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allGraphicCards-Table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allGraphicCards-Table')" class="port-table-header sortable-header">Adapter Compatibility  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allGraphicCards-Table')" class="port-table-header sortable-header">Adapter RAM  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allGraphicCards-Table')" class="port-table-header sortable-header">Caption  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allGraphicCards-Table')" class="port-table-header sortable-header">Device ID  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allGraphicCards-Table')" class="port-table-header sortable-header">Video Processor  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var x in Model)
+                    {
+                        <tr>
+                            <td class="port-table-detail">@x.AdapterCompatibility</td>
+                            <td class="port-table-detail">@x.AdapterRAM</td>
+                            <td class="port-table-detail">@x.Caption</td>
+                            <td class="port-table-detail">@x.DeviceID</td>
+                            <td class="port-table-detail">@x.VideoProcessor</td>
+                           
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

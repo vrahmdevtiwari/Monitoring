@@ -1,0 +1,230 @@
+﻿@model Monitoring.ViewModel.RegistrationViewModel
+
+<link rel="stylesheet" href="~/css/cust/partialview.css" asp-append-version="true" />
+
+
+@Html.AntiForgeryToken()
+<div class="modal-header">
+    <h1 class="modal-title fs-5" id="exampleModalLabel">Registration</h1>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <div class="row">
+    <div class="col-xs-12 col-sm-9 col-md-6 col-lg-4 col-xl-5 col-xxl-5">
+        <div class="input-container">
+            <div class="input-container-title-container"><span class="input-container-title">UserId</span></div>
+            <div class="input-container-text-container">@Html.TextBoxFor(model => model.UserId, new { @class = "input-container-text" })</div>
+            <div class="input-container-error-container"><span asp-validation-for="UserId" class="input-container-error"></span></div>
+        </div>
+    </div>
+</div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-9 col-md-6 col-lg-4 col-xl-5 col-xxl-5">
+            <div class="input-container">
+                <div class="input-container-title-container"><span class="input-container-title">FirstName</span></div>
+                <div class="input-container-text-container">@Html.TextBoxFor(model => model.FirstName, new { @class = "input-container-text" })</div>
+                <div class="input-container-error-container"><span asp-validation-for="FirstName" class="input-container-error"></span></div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-9 col-md-6 col-lg-4 col-xl-5 col-xxl-5">
+            <div class="input-container">
+                <div class="input-container-title-container"><span class="input-container-title">LastName</span></div>
+                <div class="input-container-text-container">@Html.TextBoxFor(model => model.LastName, new { @class = "input-container-text" })</div>
+                <div class="input-container-error-container"><span asp-validation-for="LastName" class="input-container-error"></span></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-9 col-md-6 col-lg-4 col-xl-5 col-xxl-5">
+            <div class="input-container">
+                <div class="input-container-title-container"><span class="input-container-title">Email Address</span></div>
+                <div class="input-container-text-container">
+                    @Html.TextBoxFor(model => model.Email, new { @class = "input-container-text" })
+                    @Html.HiddenFor(model => model.Email)
+                </div>
+                <div class="input-container-error-container"><span asp-validation-for="Email" class="input-container-error"></span></div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-9 col-md-6 col-lg-4 col-xl-5 col-xxl-5">
+            <div class="input-container">
+                <div class="input-container-title-container"><span class="input-container-title">Contact Number</span></div>
+                <div class="input-container-text-container">@Html.TextBoxFor(model => model.MobileNumber, new { @class = "input-container-text", @type="number" })</div>
+                <div class="input-container-error-container"><span asp-validation-for="MobileNumber" class="input-container-error"></span></div>
+            </div>
+        </div>
+    </div>    
+    <div class="row">
+        <div class="col-xs-12 col-sm-9 col-md-6 col-lg-4 col-xl-5 col-xxl-5">
+            <div class="input-container">
+                <div class="input-container-title-container"><span class="input-container-title">Designation</span></div>
+                <div class="input-container-text-container">@Html.TextBoxFor(model => model.Designation, new { @class = "input-container-text" })</div>
+                <div class="input-container-error-container"><span asp-validation-for="Designation" class="input-container-error"></span></div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-9 col-md-6 col-lg-4 col-xl-5 col-xxl-5">
+            <div class="input-container">
+                <div class="input-container-title-container"><span class="input-container-title">Address</span></div>
+                <div class="input-container-text-container">@Html.TextAreaFor(model => model.Address, new { @class = "input-container-text" })</div>
+                <div class="input-container-error-container"><span asp-validation-for="Address" class="input-container-error"></span></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-9 col-md-6 col-lg-4 col-xl-5 col-xxl-5">
+            <div class="input-container">
+                <div class="input-container-title-container"><span class="input-container-title">Password</span></div>
+                <div class="input-container-password-container">
+                    @Html.PasswordFor(model => model.Password, new { @class = "input-container-password" })
+                    <span class="input-container-password-icon"><i class="bi bi-eye" data-op="pwd" data-target="Password" data-target-Icon="bi bi-eye-slash"></i></span>
+                </div>
+                <div class="input-container-error-container"><span asp-validation-for="Password" class="input-container-error"></span></div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-9 col-md-6 col-lg-4 col-xl-5 col-xxl-5">
+            <div class="input-container">
+                <div class="input-container-title-container"><span class="input-container-title">Confirm Password</span></div>
+                <div class="input-container-password-container">
+                    @Html.PasswordFor(model => model.ConfirmPassword, new { @class = "input-container-password" })
+                    <span class="input-container-password-icon"><i class="bi bi-eye" data-op="pwd" data-target="ConfirmPassword" data-target-Icon="bi bi-eye-slash"></i></span>
+                </div>
+                <div class="input-container-error-container"><span asp-validation-for="ConfirmPassword" class="input-container-error"></span></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-sm-9 col-md-6 col-lg-4 col-xl-5 col-xxl-5">
+            <div class="input-container">
+                <div class="input-container-title-container"><span class="input-container-title">Role</span></div>
+                <div class="input-container-text-container">@Html.DropDownListFor(model=>model.Role, ViewBag.RolesList as IEnumerable<SelectListItem>, "Select Roles", new { @class = "input-container-text", @style="padding:5px;" })</div>
+                <div class="input-container-error-container"><span asp-validation-for="Role" class="input-container-error"></span></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer d-flex justify-content-between">
+    <div class="msg">
+        @if (ViewData.ModelState["Success"] != null && ViewData.ModelState["Success"]?.Errors.Count > 0)
+        {
+            <span class="success">
+                @ViewData.ModelState["Success"]?.Errors.FirstOrDefault()?.ErrorMessage
+            </span>
+        }
+
+        @if (ViewData.ModelState["Fail"] != null && ViewData.ModelState["Fail"]?.Errors.Count > 0)
+        {
+            <span class="fail">
+                @ViewData.ModelState["Fail"]?.Errors.FirstOrDefault()?.ErrorMessage
+            </span>
+        }
+    </div>
+    <div>
+        <button id="btnRegister" type="button" class="btn btn-primary">Register</button>
+    </div>
+</div>
+
+<script type="text/javascript" src="~/js/cust/cust.js" asp-append-version="true"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#btnCancel").on('click', function () {
+            $("#ManageProfileModel").modal('hide');
+        });
+
+        $("#btnRegister").on('click', function () {
+            let $userid = $("#UserId").val();
+            let $firstname = $("#FirstName").val(); // Corrected variable name
+            let $lastname = $("#LastName").val();
+            let $email = $("#Email").val();
+            let $address = $("#Address").val();
+            let $mobilenumber = $("#MobileNumber").val();
+            let $designation = $("#Designation").val();
+            let $pwd = $("#Password").val();
+            let $confpwd = $("#ConfirmPassword").val();
+            let $role = $("#Role").val();
+
+            let profile = {
+                'UserId':$userid,
+                'FirstName': $firstname,
+                'LastName': $lastname,
+                'Email': $email,
+                'MobileNumber': $mobilenumber,
+                'Designation': $designation,
+                'Address': $address,
+                'Password': $pwd,
+                'ConfirmPassword': $confpwd,
+                'Role':$role
+            };
+            console.log(profile);
+            $.ajax({
+                url: '@Url.Action("Register", "Account")',
+                method: 'POST',
+                data: {
+                    registrationViewModel: profile,
+                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                }, // Data sent to the server
+                beforeSend: function () {
+                    loadingStart(); // Call before sending the request
+                },
+                success: function (data) {
+                    $('#profileModalBody').html('');
+                    $('#profileModalBody').html(data); // Load the partial view into the modal
+                    $("#ManageProfileModel").modal('show');
+
+                    // Check for success or fail messages in the loaded content
+                    var successMessage = $('#profileModalBody .success').text();
+
+                    if (successMessage) {
+                        // Close the modal after 2 seconds if successful
+                        setTimeout(function () {
+                            $("#ManageProfileModel").modal('hide'); // Close the modal
+                        }, 2000);
+                    } else {
+                        // Optionally, handle failure (keep modal open or log it)
+                        console.error("invalid request, please refresh and try again");
+                    }
+
+                    loadingStop();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error loading profile data:", error);
+                    $('#profileModalBody').html("<p>please refresh and try again after some time</p>"); // Display error message
+                    $("#ManageProfileModel").modal('show');
+                    loadingStop();
+                },
+                complete: function () {
+                    loadingStop(); // Always called after success or error
+                }
+            });
+        });
+    });    
+
+    document.getElementById('MobileNumber').addEventListener('input', function (event) {
+        // Get the error message span
+        var errorSpan = document.querySelector('span[data-valmsg-for="MobileNumber"]');
+
+        // Remove any non-numeric characters
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        // Error message if the input is not numeric
+        if (this.value.length > 0 && /[^0-9]/.test(this.value)) {
+            errorSpan.textContent = 'Mobile Number should be in numeric';
+        } else {
+            errorSpan.textContent = ''; // Clear any previous error message
+        }
+
+        // Check for length > 10 and show an error if necessary
+        if (this.value.length > 10) {
+            this.value = this.value.substring(0, 10); // limit to 10 digits
+            errorSpan.textContent = 'Mobile Number should be 10 digits only...';
+        }
+
+        // If the input is valid and length is 10, remove any error messages
+        if (this.value.length === 10 && /^[0-9]{10}$/.test(this.value)) {
+            errorSpan.textContent = ''; // Clear any error message if it's valid
+        }
+    });
+</script>
+@section Scripts
+{
+    <script src="~/js/cust/user.js" asp-append-version="true"></script>
+}

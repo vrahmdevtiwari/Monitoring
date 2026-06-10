@@ -1,0 +1,67 @@
+﻿@model List<Monitoring.Models.DTO.UpdatePatchQueueDTO>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "App Management";
+}
+
+<!-- Include DataTables CSS -->
+<head>
+    <link rel="stylesheet" href="~/css/Devices/approvals.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Devices/devices.css" asp-append-version="true" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+</head>
+
+<div class="div-workstation">
+    <h4 id="Main-Title">App Management</h4>
+    <div class="approvals-container">
+    <div class="Table-Container table-responsive table-responsive-md">
+    <table id="updatePatchQueueTable" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>System Name</th>
+                <th>File</th>
+                <th>Status</th>
+                <th>Reason</th>
+                <th>Assigned Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.SystemID</td>
+                    <td>@item.UpdateName</td>
+                    <td>
+                        @if (item.Status.ToString() == "1")
+                        {
+                            <p>Installed</p>
+                        }
+                        @if (item.Status.ToString() == "2")
+                        {
+                            <p>Failed to Install</p>
+                        }
+                        
+                    </td>
+                    <td>@item.Reason</td>
+                    <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+</div>
+</div>
+
+<!-- Include jQuery and DataTables JS -->
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#updatePatchQueueTable').DataTable({
+            "searching": true,   // Enable search
+            "ordering": true     // Enable sorting
+        });
+    });
+</script>

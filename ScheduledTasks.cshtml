@@ -1,0 +1,52 @@
+﻿@model List<Monitoring.Models.DTO.ScheduledTasksDTO>
+
+@* @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Services";
+} *@
+
+@* <style>
+    .table-container {
+        max-width: 1200px;
+    }
+</style> *@
+
+<div class="main-container">
+    @* <h2>Services - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allScheduledTasks-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allScheduledTasks-table')" class="port-table-header sortable-header">Name <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allScheduledTasks-table')" class="port-table-header sortable-header">Author <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allScheduledTasks-table')" class="port-table-header sortable-header">Status <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allScheduledTasks-table')" class="port-table-header sortable-header">Created Date <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allScheduledTasks-table')" class="port-table-header sortable-header">Next Run Time <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(5, 'allScheduledTasks-table')" class="port-table-header sortable-header">Last Run time <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(6, 'allScheduledTasks-table')" class="port-table-header sortable-header">Last Run Result <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(7, 'allScheduledTasks-table')" class="port-table-header sortable-header">Path <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(8, 'allScheduledTasks-table')" class="port-table-header sortable-header">Trigger <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sT in Model)
+                    {
+                        <tr>
+                            <td class="port-table-detail">@sT.Name</td>
+                            <td class="port-table-detail">@sT.Author</td>
+                            <td class="port-table-detail">@sT.Status</td>
+                            <td class="port-table-detail">@sT.CreatedDate</td>
+                            <td class="port-table-detail">@sT.NextRunTime</td>
+                            <td class="port-table-detail">@sT.LastRunTime</td>
+                            <td class="port-table-detail">@sT.LastRunResult</td>
+                            <td class="port-table-detail">@sT.Path</td>
+                            <td class="port-table-detail">@sT.Trigger</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

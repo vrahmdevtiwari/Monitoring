@@ -1,0 +1,76 @@
+﻿@model List<Monitoring.Models.DTO.AgentManagerDeviceList>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "AgentManager";
+}
+<head>
+    <link rel="stylesheet" type="text/css" href="~/css/Devices/devices.css">
+</head>
+<h2 id="Main-Title">Agent Manager</h2>
+<div>
+    <a asp-controller="Workstation" asp-action="AgentManagerQueue" class="btn btn-dark">Update Queue</a>
+</div>
+<div class="Devices-Container">
+    <form id="deviceForm" method="post" asp-action="AddDeviceInPatchQueue">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="Device-Table" class="table table-bordered table-hover sortable">
+                <thead class="table-dark">
+                    <tr>
+                        <th><input type="checkbox" id="selectAllCheckbox" onclick="selectAllDevices()" /></th>
+                        <th onclick="sortTable(0, 'Device-Table')" class="device-table-header">Org ID</th>
+                        <th onclick="sortTable(1, 'Device-Table')" class="device-table-header">Device Name</th>
+                        <th onclick="sortTable(2, 'Device-Table')" class="device-table-header">Login User</th>
+                        <th onclick="sortTable(3, 'Device-Table')" class="device-table-header">Domain</th>
+                        <th onclick="sortTable(4, 'Device-Table')" class="device-table-header">Privileges</th>
+                        <th onclick="sortTable(5, 'Device-Table')" class="device-table-header">Manufacturer</th>
+                        <th onclick="sortTable(6, 'Device-Table')" class="device-table-header">Operating System</th>
+                        <th onclick="sortTable(7, 'Device-Table')" class="device-table-header">Public IP</th>
+                        <th onclick="sortTable(8, 'Device-Table')" class="device-table-header">Current Version</th>
+                        <th onclick="sortTable(9, 'Device-Table')" class="device-table-header">Recommended Version</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var device in Model)
+                    {
+                        <tr>
+                            <td class="device-table-detail">
+                                <input type="checkbox" class="device-checkbox" name="IDs" value="@device.ID" />
+                            </td>
+                            <td class="device-table-detail">@device.OrgID</td>
+                            <td class="device-table-detail">@device.SystemName</td>
+                            <td class="device-table-detail">@device.LoginUser</td>
+                            <td class="device-table-detail">@device.Domain</td>
+                            <td class="device-table-detail">@device.Privileges</td>
+                            <td class="device-table-detail">@device.Manufacturer</td>
+                            <td class="device-table-detail">@device.OS</td>
+                            <td class="device-table-detail">@device.PublicIP</td>
+                            <td class="device-table-detail">@device.CurrentVersion</td>
+                            <td class="device-table-detail">@device.LatestVersion</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <button id="update-button"  type="submit" class="btn btn-dark">Update</button>
+    </form>
+</div>
+
+
+
+
+<script>
+        function selectAllDevices() {
+            var checkboxes = document.getElementsByClassName("device-checkbox");
+            var selectAllCheckbox = document.getElementById("selectAllCheckbox");
+
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = selectAllCheckbox.checked;
+            }
+        }
+</script>
+
+
+
+
+

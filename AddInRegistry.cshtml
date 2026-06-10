@@ -1,0 +1,421 @@
+﻿@model Monitoring.Models.DTO.WorkstationViewModel
+
+<style>
+    .form-container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .form-group {
+        flex: 1 1 250px; /* Grow and shrink, with a base width of 250px */
+        max-width: 250px;
+        margin: 10px;
+    }
+    .form-control {
+        max-width: 100%;
+    }
+    label {
+        width: 100%;
+    }
+    .btn-submit {
+        flex: 1 1 100%;
+        margin-top: 20px; /* Add some space before the button */
+    }
+
+    .btn-submit {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn {
+        margin-right: 5px;
+    }
+    .text-danger {
+        display: block;
+    }
+    .control-label {
+        font-weight: bold;
+    }
+    .select-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .select-wrapper::after {
+        content: '\25BC'; /* Unicode character for down arrow */
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+</style>
+@* 
+<h2>Add Workstation</h2>
+ *@
+<!-- Display validation summary -->
+@Html.AntiForgeryToken()
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-action="AddWorkstation" asp-route-BIOS="@ViewBag.BIOS" asp-route-Obj="@ViewBag.Obj" method="post" class="form-horizontal form-container">
+    <div class="form-group">
+        <label asp-for="WorkstationModel.AssetID" class="control-label">Asset ID<span style="color:red">*<span></label>
+        <input asp-for="WorkstationModel.AssetID" name="AssetID" class="form-control" id="AssetID" required maxlength="20" />
+        <span asp-validation-for="WorkstationModel.AssetID" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.deviceType" class="control-label">Device Type<span style="color:red">*<span></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.deviceType" id="deviceType" name="deviceType" class="form-control" required>
+                <option value="">Select Device Type</option>
+                <option value="workstation">CPU</option>
+                <option value="laptop">Laptop</option>
+                <option value="server">Server</option>
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.deviceType" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.PurchaseType" class="control-label">Purchase Type<span style="color:red">*<span></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.PurchaseType" id="purchaseType" name="PurchaseType" class="form-control" required>
+                <option value="">Select Purchase Type</option>
+                @foreach (var purchaseType in Model.MasterData.Where(m => m.Type == "AssetOwnershipType"))
+                {
+                    <option value="@purchaseType.ID">@purchaseType.Description</option>
+                }
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.PurchaseType" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.Fromdate" class="control-label">From Date</label>
+        <input asp-for="WorkstationModel.Fromdate" id="fromDate" name="Fromdate" class="form-control" type="date" />
+        <span asp-validation-for="WorkstationModel.Fromdate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.Todate" class="control-label">To Date</label>
+        <input asp-for="WorkstationModel.Todate" id="toDate" name="Todate" class="form-control" type="date" />
+        <span asp-validation-for="WorkstationModel.Todate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.PurchaseDate" class="control-label"></label>
+        <input asp-for="WorkstationModel.PurchaseDate" id="purchaseDate" name="PurchaseDate" class="form-control" type="date" required/>
+        <span asp-validation-for="WorkstationModel.PurchaseDate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.PurchaseCost" class="control-label"></label>
+        <input asp-for="WorkstationModel.PurchaseCost" id="purchaseCost" name="PurchaseCost" class="form-control" type="number" step="0.01" required/>
+        <span asp-validation-for="WorkstationModel.PurchaseCost" class="text-danger"></span>
+    </div>
+    @* <div class="form-group">
+        <label asp-for="WorkstationModel.CurrentAssetVal" class="control-label"></label>
+        <input asp-for="WorkstationModel.CurrentAssetVal" name="CurrentAssetVal" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="WorkstationModel.CurrentAssetVal" class="text-danger"></span>
+    </div> *@
+    <div class="form-group">
+        <label asp-for="WorkstationModel.InvoiceNum" class="control-label"></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.InvoiceNum" name="InvoiceNum" class="form-control">
+                <option value="">Select Invoice Number</option>
+                @foreach (var invoice in Model.MasterData.Where(m => m.Type == "Invoices"))
+                {
+                    <option value="@invoice.ID">@invoice.ID</option>
+                }
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.InvoiceNum" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.Supplier" class="control-label"></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.Supplier" name="Supplier" class="form-control">
+                <option value="">Select Supplier</option>
+                @foreach (var vendor in Model.MasterData.Where(m => m.Type == "Vendor"))
+                {
+                    <option value="@vendor.ID">@vendor.Description</option>
+                }
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.Supplier" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.SupplerWarranty" class="control-label"></label>
+        <input asp-for="WorkstationModel.SupplerWarranty" name="SupplerWarranty" class="form-control" />
+        <span asp-validation-for="WorkstationModel.SupplerWarranty" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.UsageStatus" class="control-label"></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.UsageStatus" name="UsageStatus" class="form-control">
+                <option value="">Select Usage Status</option>
+                @foreach (var usageStatus in Model.MasterData.Where(m => m.Type == "AssetUsageStatus"))
+                {
+                    <option value="@usageStatus.ID">@usageStatus.Description</option>
+                }
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.UsageStatus" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.AssetLocation" class="control-label"></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.AssetLocation" name="AssetLocation" class="form-control">
+                <option value="">Select Asset Location</option>
+                @foreach (var branch in Model.MasterData.Where(m => m.Type == "BranchMaster"))
+                {
+                    <option value="@branch.ID">@branch.Description</option>
+                }
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.AssetLocation" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.ManufacturerName" class="control-label"></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.ManufacturerName" name="ManufacturerName" class="form-control">
+                <option value="">Select Manufacturer</option>
+                @foreach (var manufacturer in Model.MasterData.Where(m => m.Type == "OEM"))
+                {
+                    <option value="@manufacturer.ID">@manufacturer.Description</option>
+                }
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.ManufacturerName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.Model" class="control-label"></label>
+        <input asp-for="WorkstationModel.Model" name="Model" class="form-control" />
+        <span asp-validation-for="WorkstationModel.Model" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.MacAddress" class="control-label"></label>
+        <input asp-for="WorkstationModel.MacAddress" name="MacAddress" class="form-control" />
+        <span asp-validation-for="WorkstationModel.MacAddress" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.OperatingSystem" class="control-label"></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.OperatingSystem" name="OperatingSystem" class="form-control">
+                <option value="">Select Operating System</option>
+                @foreach (var os in Model.MasterData.Where(m => m.Type == "OSMaster"))
+                {
+                    <option value="@os.ID">@os.Description</option>
+                }
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.OperatingSystem" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.Processor" class="control-label"></label>
+        <input asp-for="WorkstationModel.Processor" name="Processor" class="form-control" />
+        <span asp-validation-for="WorkstationModel.Processor" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.RAM" class="control-label"></label>
+        <input asp-for="WorkstationModel.RAM" name="RAM" class="form-control" />
+        <span asp-validation-for="WorkstationModel.RAM" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.Memorytype" class="control-label"></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.Memorytype" name="Memorytype" class="form-control">
+                <option value="">Select Memory Type</option>
+                @foreach (var memoryType in Model.MasterData.Where(m => m.Type == "MemoryType"))
+                {
+                    <option value="@memoryType.ID">@memoryType.Description</option>
+                }
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.Memorytype" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.Storagetype" class="control-label"></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.Storagetype" name="Storagetype" class="form-control">
+                <option value="">Select Storage Type</option>
+                @foreach (var storageType in Model.MasterData.Where(m => m.Type == "DiskStorageType"))
+                {
+                    <option value="@storageType.ID">@storageType.Description</option>
+                }
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.Storagetype" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.Storage" class="control-label"></label>
+        <input asp-for="WorkstationModel.Storage" name="Storage" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="WorkstationModel.Storage" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.SerialNumber" class="control-label"></label>
+        <input asp-for="WorkstationModel.SerialNumber" name="SerialNumber" class="form-control" />
+        <span asp-validation-for="WorkstationModel.SerialNumber" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="WorkstationModel.AddlInfo" class="control-label"></label>
+        <textarea asp-for="WorkstationModel.AddlInfo" name="AddlInfo" class="form-control"></textarea>
+        <span asp-validation-for="WorkstationModel.AddlInfo" class="text-danger"></span>
+    </div>
+    <div class="form-group" id="ports-group" style="display: none;">
+        <label asp-for="WorkstationModel.Ports" class="control-label"></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.Ports" name="Ports" class="form-control">
+                <option value="">Number of ports</option>
+                @for (int i = 1; i <= 50; i++)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+        </div>
+        
+        <span asp-validation-for="WorkstationModel.Ports" class="text-danger"></span>
+    </div>
+    <div class="form-group" id="raid-group" style="display: none;">
+        <label asp-for="WorkstationModel.RAID" class="control-label"></label>
+        <div class="select-wrapper">
+            <select asp-for="WorkstationModel.RAID" name="RAID" class="form-control">
+                <option value="">Select RAID Level</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+        
+
+        <span asp-validation-for="WorkstationModel.RAID" class="text-danger"></span>
+    </div>
+    <div class="btn-submit">
+        <input type="submit" value="Add Workstation" class="btn btn-success" />
+        <a type="submit" asp-action="Index" asp-controller="Home" class="btn btn-danger">Cancel</a>
+    </div>
+</form>
+
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#AssetID').on('input', function () {
+            this.value = this.value.toUpperCase();
+        });
+
+        $('#deviceType').change(function () {
+            var selectedDeviceType = $(this).val();
+            if (selectedDeviceType === 'server') {
+                $('#ports-group').show();
+                $('#raid-group').show();
+            } else {
+                $('#ports-group').hide();
+                $('#raid-group').hide();
+            }
+        });
+
+        function handlePurchaseTypeChange() {
+            var selectedPurchaseType = $('#purchaseType').val();
+            if (selectedPurchaseType === '1') {
+
+                $('#fromDate').prop('disabled', true).val('');
+                $('#toDate').prop('disabled', true).val('');
+            } else {
+                $('#fromDate').prop('disabled', false);
+                $('#toDate').prop('disabled', false);
+            }
+        }
+
+        $('#purchaseType').change(handlePurchaseTypeChange);
+
+        $('#fromDate').change(function () {
+            var fromDate = $(this).val();
+            $('#toDate').attr('min', fromDate);
+        });
+
+        $('#toDate').change(function () {
+            var toDate = $(this).val();
+            $('#fromDate').attr('max', toDate);
+        });
+
+        handlePurchaseTypeChange(); // Initial check on page load
+
+        // Custom validation logic
+        $('form').on('submit', function(event) {
+            var isValid = true;
+            $('.text-danger').text(''); // Clear previous error messages
+
+            if (!$('#AssetID').val()) {
+                isValid = false;
+                $('span[data-valmsg-for="WorkstationModel.AssetID"]').text('Please Enter Asset ID');
+            }
+
+            if (!$('#deviceType').val()) {
+                isValid = false;
+                $('span[data-valmsg-for="WorkstationModel.deviceType"]').text('Please Select a Device Type');
+            }
+
+            if (!$('#purchaseType').val()) {
+                isValid = false;
+                $('span[data-valmsg-for="WorkstationModel.PurchaseType"]').text('Please Select a Purchase Type');
+            }
+                
+                if (!$('#purchaseCost').val()) {
+                    isValid = false;
+                    $('span[data-valmsg-for="WorkstationModel.PurchaseCost"]').text('Please Select a Purchase Cost');
+                }
+
+                if (!$('#purchaseDate').val()) {
+                    isValid = false;
+                    $('span[data-valmsg-for="WorkstationModel.PurchaseDate"]').text('Please Select a Purchase Cost');
+                }
+                    
+
+            // Check for negative numbers in numeric fields
+            $('input[type="number"]').each(function() {
+                var value = $(this).val();
+                if (value && value < 0) {
+                    isValid = false;
+                    var fieldName = $(this).attr('name');
+                    $('span[data-valmsg-for="WorkstationModel.' + fieldName + '"]').text('Value cannot be negative');
+                }
+            });
+
+            if (isValid) {
+                // Check for uniqueness of AssetID
+                var assetID = $('#AssetID').val();
+                $.ajax({
+                    url: '@Url.Action("CheckAssetIDs", "Workstation")',
+                    type: 'GET',
+                    data: { assetID: assetID },
+                    async: false,
+                    success: function(isUnique) {
+                        if (!isUnique) {
+                            isValid = false;
+                            $('span[data-valmsg-for="WorkstationModel.AssetID"]').text('Asset ID already exists');
+                        }
+                    },
+                    error: function() {
+                        isValid = false;
+                        $('span[data-valmsg-for="WorkstationModel.AssetID"]').text('Error checking Asset ID uniqueness');
+                    }
+                });
+            }
+
+            if (!isValid) {
+                event.preventDefault(); // Prevent form submission if validation fails
+            }
+        });
+    });
+</script>

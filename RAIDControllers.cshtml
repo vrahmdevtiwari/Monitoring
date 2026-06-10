@@ -1,0 +1,47 @@
+﻿@model List<Monitoring.Models.DTO.RAIDControllersDTO>
+
+
+
+<div class="main-container">
+    @* <h2>Services - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allRAIDControllers-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allRAIDControllers-table')" class="port-table-header sortable-header">Name <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allRAIDControllers-table')" class="port-table-header sortable-header">Status <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allRAIDControllers-table')" class="port-table-header sortable-header">PNP Device ID <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allRAIDControllers-table')" class="port-table-header sortable-header">Manufacturer <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allRAIDControllers-table')" class="port-table-header sortable-header">Caption <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(5, 'allRAIDControllers-table')" class="port-table-header sortable-header">Description <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(6, 'allRAIDControllers-table')" class="port-table-header sortable-header">System Creation Class Name <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(7, 'allRAIDControllers-table')" class="port-table-header sortable-header">System Name <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(8, 'allRAIDControllers-table')" class="port-table-header sortable-header">Config Manager Error Code <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(9, 'allRAIDControllers-table')" class="port-table-header sortable-header">Config Manager User Config <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var x in Model)
+                    {
+                        <tr>
+                            <td class="port-table-detail">@x.Name</td>
+                            <td class="port-table-detail">@x.Status</td>
+                            <td class="port-table-detail">@x.PNPDeviceID</td>
+                            <td class="port-table-detail">@x.Manufacturer</td>
+                            <td class="port-table-detail">@x.Caption</td>
+                            <td class="port-table-detail">@x.Description</td>
+                            <td class="port-table-detail">@x.SystemCreationClassName</td>
+                            <td class="port-table-detail">@x.SystemName</td>
+                            <td class="port-table-detail">@x.ConfigManagerErrorCode</td>
+                            <td class="port-table-detail">@x.ConfigManagerUserConfig</td>
+                           
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

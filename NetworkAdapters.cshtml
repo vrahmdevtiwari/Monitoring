@@ -1,0 +1,90 @@
+﻿@model List<Monitoring.Models.DTO.NetworkAdaptersDTO>
+
+
+
+<div class="main-container">
+    @* <h2>Services - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allNetworkAdapters-Table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allNetworkAdapters-Table')" class="port-table-header sortable-header">Name <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allNetworkAdapters-Table')" class="port-table-header sortable-header">Description <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allNetworkAdapters-Table')" class="port-table-header sortable-header">Interface Index <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allNetworkAdapters-Table')" class="port-table-header sortable-header">Status <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allNetworkAdapters-Table')" class="port-table-header sortable-header">MAC Address <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(5, 'allNetworkAdapters-Table')" class="port-table-header sortable-header">Speed <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    @foreach (var x in Model)
+                    {
+                        <tr>
+                            @if (x.ActiveNetworkDetails != null)
+                            {
+                                <td class="port-table-detail" style="width: 450px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>@x.Name</span>
+                                        <a class="btn" onclick="toggleDetails(this)" title="See more details">
+                                            <box-icon name='info-circle' type='solid' color='#0d0179' ></box-icon>
+                                        </a>
+                                    </div>
+
+                                    @{ var y = x.ActiveNetworkDetails; }
+                                    <div class="activeNetworkDetails" style="color:white; background-color:black; border-radius: 10px; padding: 10px; margin: 10px; border: 1px solid black; box-shadow:  0px 0px 5px 5px grey; display: none; transition: display 10s;">
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td><b>IPv4 Address</b></td>
+                                                    <td>@y.IpAddress</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Subnet Mask</b></td>
+                                                    <td>@y.SubnetMask</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>Default Gateway</b></td>
+                                                    <td>@y.DefaultGateway</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>DNS Server(s)</b></td>
+                                                    <td>@y.DnsServers</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><b>DHCP Enabled</b></td>
+                                                    <td>@y.DhcpEnabled</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="port-table-detail">
+                                    @x.Name
+                                </td>
+                            }
+
+                           
+
+                            
+                            <td class="port-table-detail">@x.Description</td>
+                            <td class="port-table-detail">@x.InterfaceIndex</td>
+                            <td class="port-table-detail">@x.Status</td>
+                            <td class="port-table-detail">@x.MACAddress</td>
+                            <td class="port-table-detail">@x.Speed</td>
+                           
+                        </tr>
+
+                        
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

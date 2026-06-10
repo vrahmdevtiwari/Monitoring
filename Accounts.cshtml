@@ -1,0 +1,35 @@
+﻿@model List<Monitoring.Models.DTO.AccountDTO>
+
+
+
+
+<div class="main-container">
+    @* <h2>accounts - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allAccounts-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allAccounts-table')" class="account-table-header sortable-header">Name  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allAccounts-table')" class="account-table-header sortable-header">Caption  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allAccounts-table')" class="account-table-header sortable-header">Account Type  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allAccounts-table')" class="account-table-header sortable-header">SID  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allAccounts-table')" class="account-table-header sortable-header">Domain  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var account in Model)
+                    {
+                        <tr>
+                            <td class="account-table-detail">@account.Name</td>
+                            <td class="account-table-detail">@account.Caption</td>
+                            <td class="account-table-detail">@account.SID</td>
+                            <td class="account-table-detail">@account.AccountType</td>
+                            <td class="account-table-detail">@account.Domain</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

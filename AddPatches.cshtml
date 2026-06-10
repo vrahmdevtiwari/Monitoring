@@ -1,0 +1,256 @@
+﻿@model Monitoring.Models.DTO.FileUploadDTO
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Patch Management";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/patchmanagement.css" asp-append-version="true" />
+    <style>
+        /* Add spinner styles */
+        .spinner-border {
+            display: none;
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3rem;
+        }
+        table > tbody > tr > td{
+            text-align:center;
+        }
+    </style>
+</head>
+
+<div class="addPatchesContainer">
+    @Html.AntiForgeryToken()
+    <div class="container mt-5">        
+        <div style="display:flex; flex-direction:row; justify-content:space-between; width:100%;">
+            <h4 class="text-center">@ViewData["Title"]</h4>
+            <a asp-action="Index" asp-controller="Home" style="text-decoration:none; background-color:#0d6efd; color:#fff; display:flex; flex-direction:row;justify-content:space-between; padding:3px; position:absolute; top:-35px; right:10px;">
+                <span style=" padding:2px 7px; border-right:1px solid #bcd7fe;display:flex; justify-content:center; align-items:center;">Back to</span>
+                <span style="width:38px; height:38px;display:flex; justify-content:center; align-items:center;"><i class="fas fa-home"></i></span>
+            </a>            
+        </div>
+        <div id="alert-placeholder"></div>
+
+        <form id="patchForm">
+            <div class="row g-1">
+                <div class="col-sm-12 col-md-6 col-lg-3">
+                    <label for="UpdateID" class="form-label">Update ID</label>
+                    <input type="text" id="UpdateID" name="UpdateID" class="form-control" required />
+                    <div class="invalid-feedback">
+                        Please provide the update ID.
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-3">
+                    <label for="UpdateOS" class="form-label">Update OS</label>
+                    <select id="UpdateOS" name="UpdateOS" class="form-control" required>
+                        <option value="">Select OS</option>
+                        <option value="Windows 10">Windows 10</option>
+                        <option value="Windows 11">Windows 11</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                    <div class="invalid-feedback">
+                        Please select the update OS.
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-3">
+                    <label for="UpdateBitRate" class="form-label">Update BitRate</label>
+                    <select id="UpdateBitRate" name="UpdateBitRate" class="form-control" required>
+                        <option value="">Select BitRate</option>
+                        <option value="X86">X86</option>
+                        <option value="X64">X64</option>
+                        <option value="Arm">Arm</option>
+                        <option value="Arm64">Arm64</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                    <div class="invalid-feedback">
+                        Please select the update bitrate.
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-3">
+                    <label for="KBNumber" class="form-label">KB Number</label>
+                    <input type="text" id="KBNumber" name="KBNumber" class="form-control" required />
+                    <div class="invalid-feedback">
+                        Please provide a KBNumber.
+                    </div>
+                </div>
+            </div>
+            <div class="row g-1 mt-1">
+                <div class="col-sm-12 col-md-6 col-lg-6">
+                    <label for="KBNumberDescription" class="form-label">KB Number Description</label>
+                    @* <textarea id="KBNumberDescription" name="KBNumberDescription" rows="2" class="form-control" required></textarea> *@
+                    <textarea id="KBNumberDescription" name="KBNumberDescription" rows="1" class="form-control" style="resize: none; overflow-y: hidden;" oninput="this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px';" required></textarea>
+                    <div class="invalid-feedback">
+                        Please provide a KBNumber Description.
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-6">
+                    <label for="UploadedFile" class="form-label">File</label>
+                    <input type="file" id="UploadedFile" name="UploadedFile" class="form-control form-control-file" required />
+                    <div class="invalid-feedback">
+                        Please upload a file.
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+           </div>
+        </form>
+
+        <!-- Loading spinner -->
+        <div class="d-flex justify-content-center my-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Uploading...</span>
+            </div>
+        </div>
+
+        <!-- Table to display patches -->
+        <div class="mt-2">
+            <h3>Available Patches</h3>
+            <div class="add-patch-software-tables">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Update Name</th>
+                        <th>Update OS</th>
+                        <th>Update BitRate</th>
+                        <th>Update ID</th>
+                        <th>KBNumber</th>
+                        <th>KBNumber Description</th>
+                    </tr>
+                </thead>
+                <tbody id="patches-table-body">
+                    <!-- Rows will be dynamically populated here -->
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+    </div>
+@section Scripts
+    {
+        <script>
+            $(document).ready(function () {
+                var patches = [];
+
+                // Check for success message in local storage
+                if (localStorage.getItem('patchUploadSuccess') === 'true') {
+                    $('#alert-placeholder').html('<div class="alert alert-success" role="alert">Patch upload success.</div>');
+                    localStorage.removeItem('patchUploadSuccess'); // Clear the message
+                }
+
+                // Function to load patches
+                function loadPatches() {
+                    $.ajax({
+                        url: '@Url.Action("LoadPatches", "OSPatchManagement")',
+                        type: 'GET',
+                        success: function (response) {
+                            // console.log('Patches loaded:', response);
+                            patches = response;
+                            $('#patches-table-body').empty(); // Clear the current rows
+                            if (patches && patches.length > 0) {
+                                patches.forEach(patch => {
+                                    $('#patches-table-body').append(`
+                                        <tr>
+                                            <td>${patch.updateName}</td>
+                                            <td>${patch.updateOS}</td>
+                                            <td>${patch.updateBitRate}</td>
+                                            <td>${patch.updateID}</td>
+                                            <td>${patch.kbNumber}</td>
+                                            <td>${patch.kbNumberDescription}</td>
+                                        </tr>
+                                    `);
+                                });
+                            } else {
+                                $('#patches-table-body').append('<tr><td colspan="5">No patches available.</td></tr>');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error loading patches:', xhr, status, error);
+                            $('#patches-table-body').append('<tr><td colspan="5" class="text-danger">Failed to load patches.</td></tr>');
+                        }
+                    });
+                }
+
+                // Load patches when the page is ready
+                loadPatches();
+
+                $('#patchForm').on('submit', function (e) {
+                    e.preventDefault(); // Prevent default form submission
+
+
+
+                    var formData = {
+                        UpdateName: $('#UploadedFile')[0].files[0].name, // Automatically set UpdateName to uploaded file name
+                        UpdateOS: $('#UpdateOS').val(),
+                        UpdateBitRate: $('#UpdateBitRate').val(),
+                        KBNumber: $('#KBNumber').val(),                                                        
+                        KBNumberDescription: $('#KBNumberDescription').val(),
+                        UpdateID: $('#UpdateID').val()
+                    };
+                        
+                        console.log(patches);
+                        // Check for duplicate UpdateName or UpdateID
+                        if(patches!==undefined){
+                            var duplicate = patches.some(patch => 
+                                patch.updateName === formData.UpdateName || patch.updateID === formData.UpdateID
+                            );
+                                
+                            if (duplicate) {
+                                $('#alert-placeholder').html('<div class="alert alert-warning" role="alert">Patch with this Update Name or Update ID already exists.</div>');
+                                return;
+                            }
+                        }
+
+                    var fileInput = $('#UploadedFile')[0].files[0];
+                    var reader = new FileReader();
+
+                    reader.onloadend = function () {
+                        formData.UploadedFileBase64 = reader.result.split(',')[1]; // Extract Base64 content
+                        console.log('UploadedFileBase64:', formData.UploadedFileBase64); // Check in console
+                        console.log('UpdateName:', formData.UpdateName); // Check in console
+                        console.log('UpdateOS:', formData.UpdateOS); // Check in console
+                        console.log('UpdateBitRate:', formData.UpdateBitRate); // Check in console
+                        console.log('KBNumber:', formData.KBNumber); // Check in console                                                            
+                        console.log('KBNumberDescription:', formData.KBNumberDescription); // Check in console
+                        submitForm(formData); // Call function to submit the form after file read
+                    };
+
+                    if (fileInput) {
+                        reader.readAsDataURL(fileInput); // Start reading the file asynchronously
+                        $('.spinner-border').show(); // Show the spinner
+                    } else {
+                        console.error('No file selected.');
+                    }
+                });
+
+                function submitForm(formData) {
+                    $.ajax({
+                        url: '@Url.Action("AddPatches", "OSPatchManagement")',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function (response) {
+                            console.log('Server Response:', response);
+                            if (response === 'success') {
+                                // Store success message in local storage
+                                localStorage.setItem('patchUploadSuccess', 'true');
+                                // Refresh the page on success
+                                location.reload();
+                            } else if (response === 'fail') {
+                                $('#alert-placeholder').html('<div class="alert alert-danger" role="alert">Patch upload failed. Please try again.</div>');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error:', xhr, status, error);
+                            $('#alert-placeholder').html('<div class="alert alert-danger" role="alert">Patch upload failed. Please try again.</div>');
+                        },
+                        complete: function () {
+                            $('.spinner-border').hide(); // Hide the spinner
+                        }
+                    });
+                }
+            });
+        </script>
+}

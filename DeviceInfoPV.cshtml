@@ -1,0 +1,378 @@
+﻿@model Monitoring.Models.DTO.EASpecificationsDTO
+
+<head>
+    <link rel="stylesheet" href="~/css/Devices/deviceinfo.css" asp-append-version="true"/>
+    <style>
+        table{
+            font-size:0.9rem;
+        }
+    </style>
+</head>
+
+@if(Model!=null)
+{
+
+<div class="Main-Container">
+    <h4 id="Main-Title"> Device Overview <span id="assetId">@ViewData["assetId"]</span> </h4>
+
+    <div class="details-container">
+        <div id="details-list" class="card shadow bg-light mb-3" @* style="max-width: 18rem;" *@>
+            <div class="card-header"><h6>Details</h6></div>
+            <div class="card-body">
+                @* <h5 class="card-title">Light card title</h5> *@
+                <div class="card-text details">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td class="title-cells"><b>System Name</b></td>
+                                <td>@Model.SystemName</td>
+                            </tr>
+                            <tr>
+                                <td class="title-cells"><b>Login User</b></td>
+                                <td>@Model.LoginUser</td>
+                            </tr>
+                            <tr>
+                                <td class="title-cells"><b>Domain</b></td>
+                                <td>@Model.Domain</td>
+                            </tr>
+                            <tr>
+                                <td class="title-cells"><b>Privileges</b></td>
+                                <td>@Model.Privileges</td>
+                            </tr>
+                            <tr>
+                                <td class="title-cells"><b>System Manufacturer</b></td>
+                                <td>@ViewBag.SystemManufacturer</td>
+                            </tr>
+                                <tr>
+                                    <td class="title-cells"><b>Operating System</b></td>
+                                    <td>@ViewBag.OS</td>
+                                </tr>
+                                <tr>
+                                    <td class="title-cells"><b>OS Version</b></td>
+                                    <td>@ViewBag.OSVersion</td>
+                                </tr>
+                                <tr>
+                                    <td class="title-cells"><b>OS Build</b></td>
+                                    <td>@ViewBag.OSBuildVersion</td>
+                                </tr>
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>Public IP Address</b></td>
+                                <td>@Model.IPv6Address</td>
+                            </tr> 
+
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>Last Synced Time</b></td>
+                                <td>@Model.LastActive</td>
+                            </tr>
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>System Up Time</b></td>
+                                <td>@ViewBag.SystemUptime</td>
+                            </tr>
+
+
+
+                            @* <tr>
+                                <td>System Status</td>
+                                <td>@Model.SystemStatus</td>
+                            </tr> *@
+
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>CPU Name</b></td>
+                                <td>@ViewBag.CPUName</td>
+                            </tr>
+
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>RAM</b></td>
+                                <td>@ViewBag.InstalledRAM</td>
+                            </tr>
+
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>System Model</b></td>
+                                <td>@ViewBag.SystemModel</td>
+                            </tr>
+
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>BIOS Version</b></td>
+                                <td>@ViewBag.BIOSVersion</td>
+                            </tr>
+
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>Serial Number</b></td>
+                                <td>@ViewBag.SerialNumber</td>
+                            </tr>
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>IPv4 Address</b></td>
+                                <td>@Model.IPv4Address</td>
+                            </tr>
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>MAC Address</b></td>
+                                <td>@ViewBag.MACAAddress</td>
+                            </tr>
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>Network</b></td>
+                                <td>@Model.NetworkAdapter</td>
+                            </tr>
+                            <tr>
+                                <td><b>Architecture</b></td>
+                                <td>@Model.SubnetMask</td>
+                            </tr>
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>GPU</b></td>
+                                <td>@ViewBag.GPUName</td>
+                            </tr>
+
+                            <tr class="extra-details">
+                                <td class="title-cells"><b>Antivirus</b></td>
+                                <td>@ViewBag.Antivirus</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                        <div id="seemore"><a id="seemoreButton" onclick="showExtraDetails()" class="btn btn-dark">See more...</a></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="other-details-container" style="width:40%;">
+            <div class="location-container card shadow text-white bg-secondary mb-3 " style="height: 370px;">
+                <div class="card-header"><h6>Location</h6></div>
+                    <div class="card-body">
+                        <iframe class="card-text" width="100%" height="100%" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyCUb6p9T3p-5wwxRYVxOwiR_vGlMxkBA8A&q=@Model.Latitude,@Model.Longitude" allowfullscreen></iframe>
+                </div>
+            </div>
+            @*  <div class="more-info-container">
+                <a asp-action="Apps" asp-controller="Workstation" asp-route-assetId="@ViewData["assetId"]">
+                    <div class="installed-apps shadow card text-white bg-dark">
+                        <div class="card-header"><h5>Apps</h5><box-icon class="boxicon" size="15px" color="silver" name='info-circle'></box-icon></div>
+                        <div class="card-body">
+                            <p class="card-text"><box-icon type='solid' color="white" size="100px" name='grid-alt'></box-icon></p>
+                        </div>
+                    </div>
+                </a>
+                <a asp-action="Patches" asp-controller="Workstation" asp-route-assetId="@ViewData["assetId"]">
+                    <div class="installed-patches shadow card text-white bg-dark">
+                        <div class="card-header"><h5>Patches</h5><box-icon class="boxicon" size="15px" color="silver" name='info-circle'></box-icon></div>
+                        <div class="card-body">
+                            <p class="card-text"><box-icon size="100px" color="white" name='list-ul'></box-icon></p>
+
+                        </div>
+                    </div>
+                </a>
+                <a asp-action="Ports" asp-controller="Workstation" asp-route-assetId="@ViewData["assetId"]">
+                    <div class="ports shadow card text-white bg-dark">
+                        <div class="card-header"><h5>Ports</h5><box-icon class="boxicon" size="15px" color="silver" name='info-circle'></box-icon></div>
+                        <div class="card-body">
+                            <p class="card-text"><box-icon color="white" size="100px" name='sort-alt-2'></box-icon></p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="more-info-container">
+                <a asp-action="Services" asp-controller="Workstation" asp-route-assetId="@ViewData["assetId"]">
+                    <div class="ports shadow card text-white bg-dark">
+                        <div class="card-header"><h5>Services</h5><box-icon class="boxicon" size="15px" color="silver" name='info-circle'></box-icon></div>
+                        <div class="card-body">
+                            <p class="card-text"><box-icon color="white" size="100px" name='sort-alt-2'></box-icon></p>
+                        </div>
+                    </div>
+                </a>
+                <a asp-action="Processes" asp-controller="Workstation" asp-route-assetId="@ViewData["assetId"]">
+                    <div class="ports shadow card text-white bg-dark">
+                        <div class="card-header"><h5>Processes</h5><box-icon class="boxicon" size="15px" color="silver" name='info-circle'></box-icon></div>
+                        <div class="card-body">
+                            <p class="card-text"><box-icon color="white" size="100px" name='sort-alt-2'></box-icon></p>
+                        </div>
+                    </div>
+                </a>
+                <a asp-action="Processors" asp-controller="Workstation" asp-route-assetId="@ViewData["assetId"]">
+                    <div class="ports shadow card text-white bg-dark">
+                        <div class="card-header"><h5>CPU</h5><box-icon class="boxicon" size="15px" color="silver" name='info-circle'></box-icon></div>
+                        <div class="card-body">
+                            <p class="card-text"><box-icon color="white" size="100px" name='sort-alt-2'></box-icon></p>
+                        </div>
+                    </div>
+                </a>
+            </div> *@
+
+        </div>  
+
+    </div>
+
+    <div class="btn details-bar" onclick="displayTable('apps')">
+        <span class="details-link"><h6>Apps</h6></span>
+         <span id="apps-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="apps-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="apps-table" class="details-table">
+        @{
+            var appsModel = ViewBag.AppsModel as List<Monitoring.Models.DTO.AppsDTO>;
+        }
+        @Html.Partial("Apps", appsModel)
+    </div> 
+
+
+    <div class="btn details-bar" onclick="displayTable('patches')">
+        <span class="details-link"><h6>Patches</h6></span>
+         <span id="patches-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="patches-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="patches-table" class="details-table">
+        @{
+            var patchesModel = ViewBag.PatchesModel as List<Monitoring.Models.DTO.PatchesDTO>;
+        }
+        @Html.Partial("Patches", patchesModel)
+    </div> 
+
+
+    <div class="btn details-bar" onclick="displayTable('ports')">
+        <span  class="details-link"><h6>Ports</h6></span>  
+         <span id="ports-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="ports-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="ports-table" class="details-table">
+        @{
+            var portsModel = ViewBag.PortsModel as List<Monitoring.Models.DTO.PortDetails>;
+        }
+        @Html.Partial("Ports", portsModel)
+    </div> 
+
+    <div class="btn details-bar" onclick="displayTable('services')">
+        <span  class="details-link"><h6>Services</h6></span>  
+         <span id="services-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="services-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="services-table" class="details-table">
+        @{
+            var servicesModel = ViewBag.ServicesModel as List<Monitoring.Models.DTO.ServicesDTO>;
+        }
+        @Html.Partial("Services", servicesModel)
+    </div> 
+
+
+    <div class="btn details-bar" onclick="displayTable('processes')">
+        <span class="details-link"><h6>Processes</h6></span>
+         <span id="processes-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="processes-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="processes-table" class="details-table">
+        @{
+            var processesModel = ViewBag.ProcessesModel as List<Monitoring.Models.DTO.ProcessesDTO>;
+        }
+        @Html.Partial("Processes", processesModel)
+    </div> 
+
+    <div class="btn details-bar" onclick="displayTable('processors')">
+        <span class="details-link"><h6>Processors</h6></span>
+         <span id="processors-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="processors-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="processors-table" class="details-table">
+        @{
+            var processorsModel = ViewBag.ProcessorDetailsModel as List<Monitoring.Models.DTO.ProcessorDTO>;
+        }
+        @Html.Partial("Processors", processorsModel)
+    </div> 
+
+     <div class="btn details-bar" onclick="displayTable('rAMDetails')">
+        <span class="details-link"><h6>RAM Details</h6></span>
+         <span id="rAMDetails-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="rAMDetails-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="rAMDetails-table" class="details-table">
+        @{
+            var rAMDetailsModel = ViewBag.RAMDetailsModel as List<Monitoring.Models.DTO.RAMDetailsDTO>;
+        }
+        @Html.Partial("RAMDetails", rAMDetailsModel)
+    </div> 
+
+    <div class="btn details-bar" onclick="displayTable('scheduledTasks')">
+        <span class="details-link"><h6>Scheduled Tasks</h6></span>
+         <span id="scheduledTasks-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="scheduledTasks-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="scheduledTasks-table" class="details-table">
+        @{
+            var scheduledTasksModel = ViewBag.ScheduledTasksModel as List<Monitoring.Models.DTO.ScheduledTasksDTO>;
+        }
+        @Html.Partial("ScheduledTasks", scheduledTasksModel)
+    </div> 
+
+    @* <div class="btn details-bar" onclick="displayTable('storageVolumes')">
+        <span class="details-link"><h5>Storage Volumes</h5></span>
+         <span id="storageVolumes-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="storageVolumes-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="storageVolumes-table" class="details-table">
+            @{
+                var storageVolumesModel = ViewBag.StorageVolumesModel as List<Monitoring.Models.DTO.StorageVolumesDTO>;
+            }
+            @Html.Partial("StorageVolumes", storageVolumesModel)
+    </div>  *@
+
+    <div class="btn details-bar" onclick="displayTable('graphicCards')">
+        <span class="details-link"><h6>Graphic Cards</h6></span>
+         <span id="graphicCards-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="graphicCards-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="graphicCards-table" class="details-table">
+        @{
+            var graphicCardsModel = ViewBag.GraphicCardsModel as List<Monitoring.Models.DTO.GraphicCardsDTO>;
+        }
+        @Html.Partial("GraphicCards", graphicCardsModel)
+    </div> 
+
+    <div class="btn details-bar" onclick="displayTable('networkAdapters')">
+        <span class="details-link"><h6>Network Adapters</h6></span>
+         <span id="networkAdapters-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="networkAdapters-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="networkAdapters-table" class="details-table">
+        @{
+            var networkAdaptersModel = ViewBag.NetworkAdaptersModel as List<Monitoring.Models.DTO.NetworkAdaptersDTO>;
+        }
+        @Html.Partial("NetworkAdapters", networkAdaptersModel)
+    </div> 
+
+    <div class="btn details-bar" onclick="displayTable('rAIDControllers')">
+        <span class="details-link"><h6>RAID Controllers</h6></span>
+         <span id="rAIDControllers-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="rAIDControllers-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="rAIDControllers-table" class="details-table">
+        @{
+            var rAIDControllersModel = ViewBag.RAIDControllersModel as List<Monitoring.Models.DTO.RAIDControllersDTO>;
+        }
+        @Html.Partial("RAIDControllers", rAIDControllersModel)
+    </div> 
+
+     <div class="btn details-bar" onclick="displayTable('physicalDrives')">
+        <span class="details-link"><h6>Physical Drives</h6></span>
+         <span id="physicalDrives-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="physicalDrives-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="physicalDrives-table" class="details-table">
+        @{
+            var physicalDrivesModel = ViewBag.PhysicalDrivesModel as List<Monitoring.Models.DTO.DiskDetailDTO>;
+        }
+        @Html.Partial("PhysicalDrives", physicalDrivesModel)
+    </div> 
+
+    <div class="btn details-bar" onclick="displayTable('accounts')">
+        <span class="details-link"><h6>Accounts</h6></span>
+         <span id="accounts-bar-plus" class="details-bar-plus"><box-icon name='list-plus' ></box-icon></span>
+         <span id="accounts-bar-minus" class="details-bar-minus"><box-icon name='list-minus' ></box-icon></span>
+    </div>
+    <div id="accounts-table" class="details-table">
+        @{
+            var accounts = ViewBag.Accounts as List<Monitoring.Models.DTO.AccountDTO>;
+        }
+        @Html.Partial("Accounts", accounts)
+    </div>
+
+</div>
+
+<script src="~/js/deviceinfo.js" asp-append-version="true"></script>
+}
+else{
+    @Html.Partial("Loading")
+}

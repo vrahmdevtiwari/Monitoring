@@ -1,0 +1,295 @@
+﻿@model Monitoring.Models.DTO.OSPatches
+
+@{
+    ViewData["Title"] = "Patch Management";
+}
+@{
+    var type = Context.Request.Query["type"].ToString();
+    var tableId = "";
+
+    if (type == "availablepatches")
+    {
+        tableId = "availablepatchestable";
+    }
+    else if (type == "installedpatches")
+    {
+        tableId = "installedpatchtable";
+    }else{
+        tableId = "null";
+    }
+    
+}
+@section Styles
+{
+                        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+                        <link rel="stylesheet" href="~/css/Devices/deviceinfo.css" asp-append-version="true"/>
+                        <link rel="stylesheet" type="text/css" href="~/css/cust/home.css" asp-append-version="true" />
+}
+<input id="hfsystemid" type="hidden" value="@Model.SystemID" />
+<div style="padding: 20px 10px;">
+    <div style="display:flex; flex-direction:row; justify-content:space-between; width:100%;">
+    <h5>Patch Management for '@Model.DeviceName'</h5>
+    <a asp-action="Index" asp-controller="Home" style="text-decoration:none; background-color:#0d6efd; color:#fff; display:flex; flex-direction:row;justify-content:space-between; padding:3px; position:relative;top:-7px;">
+        <span style=" padding:2px 7px; border-right:1px solid #bcd7fe;display:flex; justify-content:center; align-items:center;">Back to</span>
+        <span style="width:38px; height:38px;display:flex; justify-content:center; align-items:center;"><i class="fas fa-home"></i></span>
+    </a>
+    </div>
+                <ul class="nav device-model-nav" id="patchTabs" data-assetid="">
+        
+                    <li class="nav-item device-model-nav-item">
+                        <a class="@(ViewBag.Tab=="availablepatches" ? "nav-link active" : "nav-link")" 
+                           data-type="availablepatches"
+                           data-tableid="availablepatchestable"
+                           href="javascript:void(0)">
+                            Available Patches <span id="sp-patches-available">(@Model.OSPatchesCount.AvailablePatchesCount)</span>
+                        </a>
+                    </li>
+        
+                    <li class="nav-item device-model-nav-item">
+                        <a  class="@(ViewBag.Tab=="installedpatches" ? "nav-link active" : "nav-link")" 
+                           data-type="installedpatches"
+                           data-tableid="installedpatchtable"
+                           href="javascript:void(0)">
+                            Installed Patches <span id="sp-patches-installed">(@Model.OSPatchesCount.InstalledPatchesCount)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item device-model-nav-item ms-auto">
+                        <div style="position: relative; display: inline-block; min-width: 300px;">
+                            <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; pointer-events: none;"></i>
+
+                            <input id="txt_patch_search" type="text" class="form-control" data-target-table="@tableId" placeholder="Search..." 
+                                   style="width: 100%; padding-left: 35px; padding-right: 35px;"
+                                   oninput="document.getElementById('clearSearch').style.display = this.value ? 'block' : 'none';">
+
+                            <i class="fas fa-times" id="clearSearch" 
+                           style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; cursor: pointer; display: none;"
+                           onclick="var input = document.getElementById('txt_patch_search'); var tableId = input.getAttribute('data-target-table'); input.value = ''; this.style.display = 'none'; if(tableId) { $('#' + tableId + ' tbody tr.no-data-row').remove(); $('#' + tableId + ' tbody tr').show(); } input.focus();"></i>
+                        </div>
+                    </li>
+                </ul>
+
+    @if (TempData["ResultMessage"] != null)
+    {
+            <div class="toast-container position-fixed top-0 end-0 p-3"  style="z-index: 9999; margin-top: 60px;">
+                <div id="liveToast" class="toast align-items-center text-bg-@(TempData["AlertType"]) text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        @TempData["ResultMessage"]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+ <div id="div-available-patch-table-container" style="padding:10px 0;">   
+        @if (ViewBag.Tab == "availablepatches")
+        {
+         <form id="patchForm" method="post"  action="@Url.Action("SubmitPatches", "OSPatchManagement")">       
+            <div class="div-approved-table">
+               <table id="availablepatchestable" class="table" style="width:99.5%;">
+                <thead class="div-table-header-fixed">
+                    <tr>
+                        <th scope="col" style="width:5px !important;"><input type="checkbox" id="chk-select-all" /></th>
+                        <th scope="col" >Update Name</th>
+                        <th scope="col">Update OS</th>
+                        <th scope="col">Update BitRate</th>
+                        <th scope="col">Update ID</th>
+                        <th scope="col">KB Number</th>
+                        @* <th scope="col">KB Number Description</th> *@
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody id='availablepatchtablebody' style='text-align:center;'>
+                        @if (Model != null)
+                        {
+                                if (Model.AvailablePatches.Any())
+                                {                        
+                                    @foreach (var _patch in Model.AvailablePatches)
+                                    {
+                                        string status = _patch.PatchStatus;
+
+                                        if (string.IsNullOrWhiteSpace(status))
+                                        {
+                                            status = "Installing";
+                                        }
+
+                                        bool disableCheckbox =
+                                        status.Equals("Installing", StringComparison.OrdinalIgnoreCase)
+                                        || status.Equals("Installation successful", StringComparison.OrdinalIgnoreCase);
+
+                                        string statusClass =
+                                        status.Equals("Available", StringComparison.OrdinalIgnoreCase)
+                                        ? "text-green"
+                                        : "text-red";
+                                                            <tr>
+                                                                        <td  style="width:5px !important;">
+                                                                                    <input type="checkbox"
+                                                    class="chk-patch"
+                                                    name="SelectedPatches"
+                                                    value="@Model.SystemID|@_patch.PatchID"
+                                                    id="patch-@Model.SystemID-@_patch.PatchID"
+                                                @(disableCheckbox ? "disabled" : "") />
+                                                                </td>
+                                                                    <td>@_patch.PatchName</td>
+                                                                            <td>@_patch.PatchOS</td>
+                                                                            <td>@_patch.PatchBitRate</td>
+                                                                            <td>@_patch.PatchID</td>
+                                                                    <td>@_patch.KBNumber</td>
+                                                                    @* <td>@_patch.KBNumberDescription</td>*@
+                                                                    <td>
+                                                                                        <span id="status-@_patch.PatchID" class="@statusClass">
+                                                    @status
+                                                    </span>
+                                                                                    </td>
+
+                                                                </tr>
+                                }
+                            }else{
+                                        <tr>
+                                                <td colspan="8">no patches availables...</td>
+                                            </tr>
+                            }                  
+                        }
+                        else
+                        {
+                                    <tr>
+                                            <td colspan="8">no patches availables...</td>
+                                    </tr>
+                        }
+                </tbody>
+            </table>                
+                <div id="patchModal" style="margin:10px 0; width:300px;display:none;">
+            <label for="installDateTime" class="form-label">Schedule Installation</label>
+            <input type="datetime-local"
+                   id="installDateTime"
+                   name="InstallDateTime"
+                   class="form-control"
+                   form="patchForm">
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-install" disabled>Install now</button>
+            <button type="button" class="btn btn-primary" id="btn-install-later" disabled>Install later</button>
+            </div>
+         </form>
+        }
+        else if (ViewBag.Tab == "installedpatches")
+        {
+                <div class="div-approved-table">
+                         <table id="installedpatchtable" class="table" style="width:99.5%;">                                
+                            <thead class="div-table-header-fixed">                            
+                                <tr>
+                                <th scope="col">Patch</th>
+                                <th scope="col">Title</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Installed On</th>
+                                <th scope="col">Version</th>
+                            </tr>
+                    </thead>
+                        <tbody id='installedpatchtablebody' style='text-align:center;'>
+                        @if (Model != null)
+                        {
+                            if (Model.InstalledPatches.Any())
+                            {
+                                @foreach (var _patch in Model.InstalledPatches)
+                                {
+                                    <tr>                                                        
+                                        <td>@_patch.Patch</td>
+                                            <td>@_patch.Title</td>
+                                            <td>@_patch.Description</td>
+                                            <td>@_patch.InstalledOn</td>
+                                            <td>@_patch.Version</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5">no installed patches availables...</td>                                    
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5">no installed patches availables...</td>
+                            </tr>
+                        }
+                        </tbody>
+                        </table>
+                </div>
+        }
+        else if (ViewBag.Tab == "urlbroken")
+        {
+                <div id="div-available-patch-table-container" style="padding:10px 0;">   
+                  <div class="div-approved-table" style="display:flex; flex-direction:column; align-content:center; align-items:center; justify-content:center; gap:25px; height:100vh;">
+                    <div>
+                        <i class="fas fa-unlink" style="font-size:3.5rem; color:#777;"></i>
+                    </div>
+                    <div style="text-align:center; color:#777;">
+                        <h3>This Page Isn't Available</h3>                        
+                        <p>The link may be broken, or the page may have been removed. Check to see if the link you're trying to open is correct.</p>
+                    </div>
+                  </div>
+                </div>
+        }
+
+</div>
+
+</div>
+    @section Scripts
+    {
+    <script src="~/js/cust/home.js" asp-append-version="true"></script>
+                <script src="~/js/cust/patch.js" asp-append-version="true"></script>
+                    <script>
+
+                            document.addEventListener("DOMContentLoaded", function () {
+                                var toastEl = document.getElementById('liveToast');
+                                if (toastEl) {
+                                    var toast = new bootstrap.Toast(toastEl);
+                                    toast.show();
+                                }
+                            });
+
+                        $(document).ready(function(){
+                                //Prevent Past Date Selection
+                                 let now = new Date().toISOString().slice(0,16);
+                                 $('#installDateTime').attr('min', now);
+                                         
+
+        $('#installDateTime').on('change input', function () {
+
+            let selected = $(this).val();
+
+            if (selected) {
+
+                let selectedDate = new Date(selected);
+                let now = new Date();
+
+                // Check valid future date
+                if (selectedDate > now) {
+                    $('#btn-install').prop('disabled', false);
+                } else {
+                    $('#btn-install').prop('disabled', true);
+                }
+
+            } else {
+                $('#btn-install').prop('disabled', true);
+            }
+
+        });
+
+                                 $('#patchForm').on('submit', function (e) {
+                                // Optional: You can add additional validation or processing here if needed
+                            });
+
+                                // Suppose you have System IDs available in the view                
+                    let systemIds = $("#hfsystemid").val();                                                
+                    pollPatchStatus(systemIds)
+
+                        });
+                            
+                        
+
+                    </script>
+    }

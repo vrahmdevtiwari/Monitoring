@@ -1,0 +1,101 @@
+﻿@model List<Monitoring.Models.DTO.ProcessesDTO>
+
+@* @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Processes";
+} *@
+
+<style>
+    
+    
+</style>
+
+<div class="main-container">
+    @* <h2>Processes - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="resourceUtilTable" class="table table-bordered table-hover">
+                <thead class="">
+                    <tr>
+                        <th style="background-color: none;" colspan="6">Total Resource Utilization</th>
+                    </tr>
+                    <tr>
+                        <th>CPU Usage</th>
+                        <th>Physical Disk Usage</th>
+                        <th>Memory Usage</th>
+                        <th>Bytes Sent</th>
+                        <th>Bytes Received</th>
+                        <th>GPU Usage</th>
+                    </tr>
+                </thead>
+                <tbody id="resourceUtilBody">
+                    <!-- Data will be populated here dynamically -->
+                </tbody>
+            </table>
+            <table id="allProcesses-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allProcesses-table')" class="port-table-header sortable-header">Process Name  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allProcesses-table')" class="port-table-header sortable-header">Process Id  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allProcesses-table')" class="port-table-header sortable-header">Status  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allProcesses-table')" class="port-table-header sortable-header">Username  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allProcesses-table')" class="port-table-header sortable-header">Memory Usage  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(5, 'allProcesses-table')" class="port-table-header sortable-header">Description  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(6, 'allProcesses-table')" class="port-table-header sortable-header">Executable Path  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var process in Model)
+                    {
+                        <tr>
+                            <td class="port-table-detail">@process.ProcessName</td>
+                            <td class="port-table-detail">@process.ProcessId</td>
+                            <td class="port-table-detail">@process.Status</td>
+                            <td class="port-table-detail">@process.Username</td>
+                            <td class="port-table-detail">@process.MemoryUsage</td>
+                            <td class="port-table-detail">@process.Description</td>
+                            <td class="port-table-detail">@process.Path</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add this line before your script -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        function updateResourceUtil() {
+            var assetId = "@ViewData["ID"]"; // Retrieve assetId from ViewData
+            $.ajax({
+                url: '@Url.Action("GetResourceUtil", "Workstation")',
+                type: 'GET',
+                data: { assetId: assetId },
+                success: function (data) {
+                    $('#resourceUtilBody').html('');
+                    var tableRow = $('<tr>');
+                    tableRow.append(`<td class="utilProperty cpu">${data.cpuUsage}%</td>`);
+                    tableRow.append(`<td class="utilProperty physicalDisk">${data.physicalDiskUsage}%</td>`);
+                    tableRow.append(`<td class="utilProperty memory">${data.memoryUsage}%</td>`);
+                    tableRow.append(`<td class="utilProperty bytesSent">${data.bytesSent}</td>`);
+                    tableRow.append(`<td class="utilProperty bytesReceived">${data.bytesReceived}</td>`);
+                    tableRow.append(`<td class="utilProperty gpu">${data.gpuUsage}%</td>`);
+                    $('#resourceUtilBody').append(tableRow);
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        }
+
+        updateResourceUtil();
+
+        setInterval(function () {
+            updateResourceUtil();
+        }, 5000); // Update every 5 seconds (adjust as needed)
+    });
+</script>

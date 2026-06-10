@@ -1,0 +1,46 @@
+﻿@model List<Monitoring.Models.DTO.ServicesDTO>
+
+@* @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Services";
+} *@
+
+@* <style>
+    .table-container {
+        max-width: 1200px;
+    }
+</style> *@
+
+<div class="main-container">
+    @* <h2>Services - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allServices-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allServices-table')" class="port-table-header sortable-header">PID <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allServices-table')" class="port-table-header sortable-header">Service Name <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allServices-table')" class="port-table-header sortable-header">Display Name <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        @* <th onclick="sortTable(3, 'allServices-table')" class="port-table-header sortable-header">Service Type <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th> *@
+                        <th onclick="sortTable(4, 'allServices-table')" class="port-table-header sortable-header">Service Status <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(5, 'allServices-table')" class="port-table-header sortable-header">Start Type <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var service in Model)
+                    {
+                        <tr>
+                            <td class="port-table-detail">@service.PID</td>
+                            <td class="port-table-detail">@service.ServiceName</td>
+                            <td class="port-table-detail">@service.DisplayName</td>
+                            @* <td class="port-table-detail">@service.ServiceType</td> *@
+                            <td class="port-table-detail">@service.ServiceStatus</td>
+                            <td class="port-table-detail">@service.StartType</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

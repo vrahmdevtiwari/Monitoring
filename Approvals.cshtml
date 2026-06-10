@@ -1,0 +1,112 @@
+﻿@model List<Monitoring.Models.DTO.DeviceDTO>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Approvals";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/Devices/approvals.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Devices/devices.css" asp-append-version="true" />
+    <style>
+        table{
+            font-size:0.9rem;
+        }
+    </style>
+</head>
+<div class="div-workstation">
+<h4 id="Main-Title">Unapproved Devices</h4>
+    @* <div><a asp-controller="Workstation" asp-action="Index" class="btn btn-dark">Approved Devices</a></div> *@ 
+<div class="approvals-container">
+    <div class="Table-Container table-responsive table-responsive-md">
+        <table id="Device-Table" class="table table-bordered table-hover sortable">
+            <thead class="table-dark">
+                <tr>
+                    <th onclick="sortTable(0, 'Device-Table')" class="device-table-header">Device Name</th>
+                    <th onclick="sortTable(1, 'Device-Table')" class="device-table-header">Login User</th>
+                    <th onclick="sortTable(2, 'Device-Table')" class="device-table-header">Domain</th>
+                    <th onclick="sortTable(3, 'Device-Table')" class="device-table-header">Privileges</th>
+                    <th onclick="sortTable(4, 'Device-Table')" class="device-table-header">Manufacturer</th>
+                    <th onclick="sortTable(5, 'Device-Table')" class="device-table-header">Operating System</th>
+                    <th onclick="sortTable(6, 'Device-Table')" class="device-table-header">Public IP</th>
+                    <th onclick="sortTable(7, 'Device-Table')" class="device-table-header">In Asset Register?</th>
+                    <th onclick="sortTable(8, 'Device-Table')" class="device-table-header">Action</th>
+                </tr>
+            </thead>
+            <tbody class="devicesBody">
+                    @foreach (var approval in Model)
+                    {
+                        <tr id="row_@approval.ID">
+                            <td class="device-table-detail">@approval.SystemName</td>
+                            <td class="device-table-detail">@approval.LoginUser</td>
+                            <td class="device-table-detail">@approval.Domain</td>
+                            <td class="device-table-detail">@approval.Privileges</td>
+                            <td class="device-table-detail">@approval.Manufacturer</td>
+                            <td class="device-table-detail">@approval.OS</td>
+                            <td class="device-table-detail">@approval.PublicIP</td>
+                            <td class="device-table-detail">
+                                @if (approval.InITAM == true)
+                                {
+                                        <span>Yes</span>
+                                }
+                                else
+                                {
+                                        <span>No</span>
+                                }
+                            </td>
+                            <td>
+                                <a class="btn btn-success" onclick="approveDevice('@approval.ID')">Approve</a>
+                                <a class="btn btn-danger" onclick="deleteDevice('@approval.ID')">Deny</a>   
+                            </td>
+
+                        </tr>
+                    }
+            <tbody>
+        </table>
+    </div>
+</div>
+</div>
+<script>
+    function approveDevice(deviceId) {
+        $.ajax({
+            url: '@Url.Action("ApproveDevice", "Workstation")',
+            type: 'GET',
+            data: { ID: deviceId },
+            success: function (response) {
+                if (response) {
+                    // alert("Device approved successfully.");
+                    // Hide the table row
+                    $('#row_' + deviceId).hide();
+                } else {
+                    alert("Failed to approve device.");
+                }
+            },
+            error: function () {
+                alert("An error occurred while approving device.");
+            }
+        });
+    }
+
+    function deleteDevice(deviceId) {
+        $.ajax({
+            url: '@Url.Action("DeleteDevice", "Workstation")',
+            type: 'GET',
+            data: { ID: deviceId },
+            success: function (response) {
+                if (response) {
+                    // alert("Device deleted successfully.");
+                    // Hide the table row
+                    $('#row_' + deviceId).hide();
+                } else {
+                    alert("Failed to delete device.");
+                }
+            },
+            error: function () {
+                alert("An error occurred while deleting device.");
+            }
+        });
+    }
+
+</script>
+
+

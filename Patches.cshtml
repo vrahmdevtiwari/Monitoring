@@ -1,0 +1,39 @@
+﻿@model List<Monitoring.Models.DTO.PatchesDTO>
+
+@* @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Patches";
+} *@
+
+
+<div class="main-container">
+    @* <h2>Patches - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allPatches-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allPatches-table')" class="patch-table-header sortable-header">Patch  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allPatches-table')" class="patch-table-header sortable-header">Title  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allPatches-table')" class="patch-table-header sortable-header">Description  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allPatches-table')" class="patch-table-header sortable-header">Installed On <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allPatches-table')" class="patch-table-header sortable-header">Version  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var patch in Model)
+                    {
+                        <tr>
+                            <td class="patch-table-detail">@patch.Patch</td>
+                            <td class="patch-table-detail">@patch.Title</td>
+                            <td class="patch-table-detail">@patch.Description</td>
+                            <td class="patch-table-detail">@patch.InstalledOn</td>
+                            <td class="patch-table-detail">@patch.Version</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

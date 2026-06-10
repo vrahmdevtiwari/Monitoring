@@ -1,0 +1,50 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ServiceUnavailable Error</title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #E9EAEA;
+        }
+
+        hgroup {
+            text-align: center;
+        }
+
+        .error-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .vertical-line {
+            height: 50px;
+            border-left: 2px solid #284054;
+            margin: 0 20px;
+        }
+
+        h1 {
+            color: #284054;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+    </style>
+</head>
+<body>
+    <hgroup>
+        <div class="error-container">
+            <h1>503 Error</h1>
+            <div class="vertical-line"></div>
+            <h1>Sorry, the service is temporarily unavailable. Please try again later.</h1>
+        </div>
+    </hgroup>
+</body>
+</html>

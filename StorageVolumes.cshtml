@@ -1,0 +1,48 @@
+﻿@model List<Monitoring.Models.DTO.StorageVolumesDTO>
+
+@* @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Services";
+} *@
+
+@* <style>
+    .table-container {
+        max-width: 1200px;
+    }
+</style> *@
+
+<div class="main-container">
+    @* <h2>Services - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allStorageVolumes-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allStorageVolumes-table')" class="port-table-header sortable-header">Boot Volume <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allStorageVolumes-table')" class="port-table-header sortable-header">Capacity <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allStorageVolumes-table')" class="port-table-header sortable-header">Drive Letter <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allStorageVolumes-table')" class="port-table-header sortable-header">File System <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allStorageVolumes-table')" class="port-table-header sortable-header">Free Space <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(5, 'allStorageVolumes-table')" class="port-table-header sortable-header">Label <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(6, 'allStorageVolumes-table')" class="port-table-header sortable-header">System Volume <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sV in Model)
+                    {
+                        <tr>
+                            <td class="port-table-detail">@sV.BootVolume</td>
+                            <td class="port-table-detail">@sV.Capacity</td>
+                            <td class="port-table-detail">@sV.DriveLetter</td>
+                            <td class="port-table-detail">@sV.FileSystem</td>
+                            <td class="port-table-detail">@sV.FreeSpace</td>
+                            <td class="port-table-detail">@sV.Label</td>
+                            <td class="port-table-detail">@sV.SystemVolume</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,152 @@
+﻿@model List<Monitoring.Models.DTO.DiskDetailDTO>
+
+
+
+<div class="main-container">
+    @* <h2>Services - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allPhysicalDrives-Table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allPhysicalDrives-Table')" class="port-table-header sortable-header">DeviceID  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th @* onclick="sortTable(1, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Firmware Revision  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        <th @* onclick="sortTable(2, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Index  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        <th @* onclick="sortTable(3, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Media Type  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        <th @* onclick="sortTable(4, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Model  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        <th @* onclick="sortTable(5, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Partitions  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        <th @* onclick="sortTable(6, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Serial Number  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        <th @* onclick="sortTable(7, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Manufacturer  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        <th @* onclick="sortTable(8, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Size  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        <th @* onclick="sortTable(9, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Interface Type  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        <th @* onclick="sortTable(10, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Status  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        <th @* onclick="sortTable(11, 'allPhysicalDrives-Table')" class="port-table-header sortable-header" *@>Install Date  @* <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span> *@</th>
+                        
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var x in Model)
+                    {
+                        <tr class="main-row">
+                            <td class="port-table-detail">
+                                @x.DeviceID<span id="sort-helper-main" style="display:none">0</span>
+                            </td>
+                            <td class="port-table-detail">@x.FirmwareRevision</td>
+                            <td class="port-table-detail">@x.Index</td>
+                            <td class="port-table-detail">@x.MediaType</td>
+                            <td class="port-table-detail">@x.Model</td>
+                            <td class="port-table-detail">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span>@x.Partitions</span>
+                                        <a class="btn" onclick="toggleDetails(this)" title="See more details">
+                                            <box-icon name='info-circle' type='solid' color='#0d0179' ></box-icon>
+                                        </a>
+                                </div>
+                            </td>
+                            <td class="port-table-detail">@x.SerialNumber</td>
+                            <td class="port-table-detail">@x.Manufacturer</td>
+                            <td class="port-table-detail">@x.Capacity</td>
+                            <td class="port-table-detail">@x.InterfaceType</td>
+                            <td class="port-table-detail">@x.Status</td>
+                            <td class="port-table-detail">@x.InstallDate</td>
+                           
+                        <tr class="partition-row" style="display: none;">
+                            <td style="background-color: none;" colspan="12">
+                                <div id="Partition-Table-Container" class="Table-Container table-responsive table-responsive-md partition-container">
+
+                                    <table id="Partitions-Table" class="table table-light table-hover">
+                                        <thead class="table-dark">
+                            
+                                             <tr id="heading">
+                                                <th style="background-color: none;" colspan="12"><span style="font-weight:400px;">@x.DeviceID<span id="sort-helper-partition" style="display:none">1</span></span> - Partitions (Storage Volumes)</th>
+                                             </tr>
+                                            <tr>
+                                            <th onclick="sortTable(0, 'Partitions-Table')" class="port-table-header sortable-header">DeviceID  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                                            <th onclick="sortTable(1, 'Partitions-Table')" class="port-table-header sortable-header">Index  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                                            <th onclick="sortTable(2, 'Partitions-Table')" class="port-table-header sortable-header">Drive Letter  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                                            <th onclick="sortTable(3, 'Partitions-Table')" class="port-table-header sortable-header">Volume Name  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                                            <th onclick="sortTable(4, 'Partitions-Table')" class="port-table-header sortable-header">Partition Type  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                                            <th onclick="sortTable(5, 'Partitions-Table')" class="port-table-header sortable-header">Size  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                                            <th onclick="sortTable(6, 'Partitions-Table')" class="port-table-header sortable-header">File System  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                                            <th onclick="sortTable(7, 'Partitions-Table')" class="port-table-header sortable-header">Free Space  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                                            <th onclick="sortTable(8, 'Partitions-Table')" class="port-table-header sortable-header">Used Space  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                                            <th onclick="sortTable(9, 'Partitions-Table')" class="port-table-header sortable-header">Description  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        
+                                                @foreach (var p in x.PartitionDetails)
+                                                {
+                                                    <tr>
+                                                        <td class="port-table-detail">@p.DeviceID</td>
+                                                        <td class="port-table-detail">@p.Index</td>
+                                                        <td class="port-table-detail">@p.DriveLetter</td>
+                                                        <td class="port-table-detail">@p.VolumeName</td>
+                                                        <td class="port-table-detail">
+                                                            @if (p.BootPartition == "True")
+                                                            {
+                                                                 <span>Boot Partition</span> 
+                                                            }
+                                                            else if (p.PrimaryPartition == "True") 
+                                                            {
+                                                                 <span>Primary Partition</span> 
+                                                                
+                                                            }
+                                                            else 
+                                                            {
+                                                                 <span>Hidden</span> 
+                                                                
+                                                            }
+                                                        </td>
+                                                        <td class="port-table-detail">@p.Size</td>
+                                                        <td class="port-table-detail">@p.FileSystem</td>
+                                                        <td class="port-table-detail">@p.FreeSpace</td>
+                                                        <td class="port-table-detail">@p.UsedSpace</td>
+                                                        <td class="port-table-detail">@p.Description</td>
+                                                    </tr>
+                                                }
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const mainRows = document.querySelectorAll(".main-row");
+        const partitionRows = document.querySelectorAll(".partition-row");
+
+        mainRows.forEach(function(row, index) {
+            row.addEventListener("click", function() {
+                const partitionRow = partitionRows[index];
+                // Toggle visibility of the partition table corresponding to the clicked row
+                if (partitionRow.style.display === "none") {
+                    // If hidden, show the partition table
+                    partitionRow.style.display = "table-row";
+                } else {
+                    // If visible, hide the partition table
+                    partitionRow.style.display = "none";
+                }
+                // Hide all other partition tables
+                partitionRows.forEach(function(otherPartitionRow, i) {
+                    if (i !== index) {
+                        otherPartitionRow.style.display = "none";
+                    }
+                });
+            });
+        });
+    });
+
+
+</script>
+

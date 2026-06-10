@@ -1,0 +1,798 @@
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Monitoring</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/cust/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Monitoring.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/boxicons/animations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Devices/boxicons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Devices/boxicons.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Devices/tranformations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cust/header.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cust/mainnavigation.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cust/spinner.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cust/user.js" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cust/navigation_submenu.js" asp-append-version="true" />
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.5/css/dataTables.dataTables.css" />
+    <style>
+            .nav-link, .nav-link:hover, .nav-link:visited {
+                color: #fff !important;
+                font-size: 0.9rem;
+            }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-light custom-navbar custom-navbar-expand-lg">
+            <div class="container-fluid" style="display:flex; flex-direction:row;padding:0; margin:0; height:50px;">
+                <button class="gridIcon" type="button" data-bs-target="collapseMenuItemsList">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </button>
+                <a class="navbar-brand" href="javascript:void(0)" style="margin-left:5px; flex:1; min-width:0; display:flex; justify-content:start; align-items:center; overflow:hidden;">
+                    <img style="width:60px; height:40px; mix-blend-mode:multiply; flex-shrink:0;" src="~/img/ITAM logo.png" />
+                    <span class="brand-title">Endpoint Tracking &amp; Patch Management</span>
+                </a>
+                <div class="nav-icons-bar" id="navIconsBar">
+
+                    <!-- Reported Devices -->
+                    <a href="javascript:void(0)" class="nav-icon-btn" title="Reported Devices">
+                        <i class="bi bi-pc-display" aria-hidden="true"></i>
+                        <span class="nav-icon-lbl">Reported Devices</span>
+                        <span class="nav-icon-badge" id="ic-reported-badge" style="background:#185fa5;">
+                            <span id="span-reported-devices">0</span>
+                        </span>
+                    </a>
+
+                    <!-- Approved Devices -->
+                    <a href="javascript:void(0)" class="nav-icon-btn" title="Approved Devices">
+                        <i class="bi bi-check-circle" aria-hidden="true"></i>
+                        <span class="nav-icon-lbl">Approved</span>
+                        <span class="nav-icon-badge" id="ic-approved-badge" style="background:#1d9e75;">
+                            <span id="span-approved-devices">0</span>
+                        </span>
+                    </a>
+
+                    <!-- UnApproved Devices -->
+                    <a href="javascript:void(0)" class="nav-icon-btn" title="UnApproved Devices">
+                        <i class="bi bi-x-circle" aria-hidden="true"></i>
+                        <span class="nav-icon-lbl">Unapproved</span>
+                        <span class="nav-icon-badge" id="ic-unapproved-badge" style="background:#e24b4a;">
+                            <span id="span-unapproved-devices">0</span>
+                        </span>
+                    </a>
+
+                    <div class="nav-icon-sep"></div>
+
+                    <!-- Sync Repository -->
+                    <a asp-action="Index" asp-controller="CISRepo" class="nav-icon-btn" title="Sync Repository">
+                        <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                        <span class="nav-icon-lbl">Sync Repo</span>
+                    </a>
+
+                    @*
+                    <!-- Custom Tags -->
+                    <a asp-action="Index" asp-controller="Tags" class="nav-icon-btn" title="Custom Tags">
+                        <i class="bi bi-tag" aria-hidden="true"></i>
+                        <span class="nav-icon-lbl">Tags</span>
+                    </a>
+                    *@
+
+                    <!-- Desktop Policy -->
+                    <a asp-action="Index" asp-controller="WhitelistSoftware" class="nav-icon-btn" title="Desktop Policy">
+                        <i class="bi bi-shield-check" aria-hidden="true"></i>
+                        <span class="nav-icon-lbl">Policy</span>
+                    </a>
+
+                    <!-- Group -->
+                    <a asp-action="Index" asp-controller="Grouping" class="nav-icon-btn" title="Group">
+                        <i class="bi bi-grid" aria-hidden="true"></i>
+                        <span class="nav-icon-lbl">Group</span>
+                    </a>
+
+                </div>
+                <div class="justify-content-between" id="navbarNav">
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Signin">Signin</a>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <div class="btn-group">
+                                    <button id="btnProfiledropdown" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true" onclick="openProfile()">
+                                        @if (!string.IsNullOrEmpty(ViewBag.FirstName) && !string.IsNullOrEmpty(ViewBag.LastName))
+                                        {
+                                            @(ViewBag.FirstName[0].ToString().ToUpper() + "" + ViewBag.LastName[0].ToString().ToUpper())
+                                        }
+                                    </button>
+                                    <div id="Profiledropdown" class="dropdown-menu dropdown-menu-start dropdown-menu-end dropdown-menu-container dropdown-menu-notify-xs" style="padding:0;">
+                                        <div class="dropdown-menu-subcontainer">
+                                            <div class="dropdown-menu-name-logout">
+                                                <div class="dropdown-menu-name">
+                                                    <h5>@(ViewBag.FirstName + " " + ViewBag.LastName)</h5>
+                                                    <p class="text-muted" style="font-size:0.85rem; margin-top:-5px;">@ViewBag.Email</p>
+                                                    <div style="position:relative; top:0; display:flex; flex-direction:column; font-size:small;">
+                                                        <a href="javascript:void(0)" id="ManageProfile" data-bs-toggle="modal" data-bs-target="#ManageProfileModel" title="Manage Profile">Manage Profile</a>
+                                                        <a href="javascript:void(0)" id="ChangePassword" data-bs-toggle="modal" data-bs-target="#ManageProfileModel" title="Change Password">Change Password</a>
+                                                        <form id="logoutForm" asp-controller="Home" asp-action="Signout" method="post" style="display:inline;">
+                                                            <a href="javascript:void(0);" title="Signout" onclick="document.getElementById('logoutForm').submit();">
+                                                                Logout
+                                                            </a>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @if (User.IsInRole("SuperAdmin"))
+                                        {
+                                            <div class="dropdown-menu-create">
+                                                <a href="javascript:void(0)" id="Register" class="dropdown-item" title="Register">Create New Account</a>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="Menucollapse" id="collapseMenuItemsList">
+            <div class="MenucollapseInner">
+                <div class="MenucollapseInnerSearch">
+                    <span><i class="bi bi-search"></i></span>
+                    <input id="txtSearch" type="text" placeholder="Find Insite Apps" />
+                </div>
+                <div class="MenucollapseInnerMenuList">
+                    <a href="javascript:void(0)" data-url="/" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-house"
+                       data-bs-icon-hover="bi bi-house-fill">
+                        <i class="bi bi-house"></i>
+                        <span data-leftmenu="true" data="Home" data-hover="Home">Home</span>
+                    </a>
+                    <a href="javascript:void(0)" data-url="/Home/Navigation/2" target="_blank" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-pc-display-horizontal"
+                       data-bs-icon-hover="bi bi-pc-display-horizontal">
+                        <i class="bi bi-pc-display-horizontal"></i>
+                        <span data-leftmenu="true" data="WorkStation ..." data-hover="WorkStation Hub">WorkStation ...</span>
+                    </a>
+                    <a href="javascript:void(0)" data-url="/Home/Navigation/3" target="_blank" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-tools"
+                       data-bs-icon-hover="bi bi-tools">
+                        <i class="bi bi-tools"></i>
+                        <span data-leftmenu="true" data="Service ..." data-hover="Service Desk">Service ...</span>
+                    </a>
+                    <a href="javascript:void(0)" data-url="/Home/Navigation/4" target="_blank" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-boxes"
+                       data-bs-icon-hover="bi bi-boxes">
+                        <i class="bi bi-boxes"></i>
+                        <span data-leftmenu="true" data="General ..." data-hover="General Asset Register">General ...</span>
+                    </a>
+                    <a href="javascript:void(0)" data-url="/Home/Navigation/5" target="_blank" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-speedometer2"
+                       data-bs-icon-hover="bi bi-speedometer2">
+                        <i class="bi bi-speedometer2"></i>
+                        <span data-leftmenu="true" data="Monitoring" data-hover="Monitoring">Monitoring</span>
+                    </a>
+                    @*
+                    <a href="javascript:void(0)" data-url="/Home/Navigation/6" target="_blank" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-shield-check"
+                       data-bs-icon-hover="bi bi-shield-check">
+                        <i class="bi bi-shield-check"></i>
+                        <span data-leftmenu="true" data="Patch  ..." data-hover="Patch Management">Patch  ...</span>
+                    </a>
+                    *@
+                </div>
+            </div>
+        </div>
+        <div class="wrapper">
+            @* <partial name="_MainNavigation" /> *@
+            <div class="main view-content" id="MainBody">
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+    <footer class="footer text-muted">
+        Copyright&nbsp;
+        <strong>
+            &copy; <span id="spanDate">@DateTime.Now.Year</span>
+            <a target="_blank" href="https://www.cybermateinnovations.com/">Cybermate Innovations LLP</a>.
+        </strong>
+        &nbsp;All rights reserved.
+    </footer>
+    <div id="spinner-wrapper">
+        <div class="lds-spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="loading-text">Loading...</div>
+    </div>
+    @* Modal *@
+    <div class="modal fade" id="ManageProfileModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" id="profileModalBody">
+            </div>
+        </div>
+    </div>
+    @* toast alert *@
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999; margin-top: 60px;">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    @* =====================================================================
+       ✅ SSO URL Injection — session.js se pehle inject karna zaroori hai.
+
+window.__SSO_BASE_URL__  = SSOServer (Identity Server) ka URL
+                                  (existing — kisi aur kaam ke liye rakha)
+
+window.SSO_USER_BASE_URL = SSOUser Dashboard (Welcome) ka URL
+                                  session.js is URL ko proxy heartbeat ke
+                                  liye use karta hai.
+    ===================================================================== *@
+    <script>
+            window.__SSO_BASE_URL__  = '@Configuration["SSOServer:Login"]';
+            var SSO_USER_BASE_URL    = '@Configuration["SSOServer:Home"]';
+    </script>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/tags.js" asp-append-version="true"></script>
+    <script src="~/js/approvals.js" asp-append-version="true"></script>
+    <script src="~/js/cust/navigation_submenu.js" asp-append-version="true"></script>
+    <script src="~/js/cust/cust.js" asp-append-version="true"></script>
+    <script src="~/js/cust/user.js" asp-append-version="true"></script>
+    @* ✅ session.js — SSO_USER_BASE_URL inject hone ke BAAD load hona chahiye *@
+    <script src="~/js/cust/session.js" asp-append-version="true"></script>
+    <script src="~/js/cust/cis_auto_sync.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function () {
+
+        // Manage Profile
+        $("#ManageProfile").on('click', function () {
+        $(this).attr('data-bs-toggle', 'modal').attr('data-bs-target', '#ManageProfileModel');
+        $.ajax({
+        url: '@Url.Action("ManageProfile", "Account")',
+        type: 'GET',
+        beforeSend: function () { loadingStart(); },
+        success: function (data) {
+        $('#profileModalBody').html(data);
+        $("#ManageProfileModel").modal('show');
+        requestAnimationFrame(() => {
+        requestAnimationFrame(() => { loadingStop(); });
+        });
+        },
+        error: function (xhr, status, error) {
+        console.error("Error loading profile data:", error);
+        $('#profileModalBody').html("<p>Error loading data.</p>");
+        $("#ManageProfileModel").modal('show');
+        loadingStop();
+        },
+        complete: function () { loadingStop(); }
+        });
+        });
+
+        // Change Password
+        $("#ChangePassword").on('click', function () {
+        $(this).attr('data-bs-toggle', 'modal').attr('data-bs-target', '#ManageProfileModel');
+        $.ajax({
+        url: '@Url.Action("ChangePassword", "Account")',
+        type: 'GET',
+        beforeSend: function () { loadingStart(); },
+        success: function (data) {
+        $('#profileModalBody').html(data);
+        $("#ManageProfileModel").modal('show');
+        loadingStop();
+        },
+        error: function (xhr, status, error) {
+        console.error("Error loading profile data:", error);
+        $('#profileModalBody').html("<p>Error loading data.</p>");
+        $("#ManageProfileModel").modal('show');
+        loadingStop();
+        },
+        complete: function () { loadingStop(); }
+        });
+        });
+
+        // Registration
+        $("#Register").on('click', function () {
+        $(this).attr('data-bs-toggle', 'modal').attr('data-bs-target', '#ManageProfileModel');
+        $.ajax({
+        url: '@Url.Action("Register", "Account")',
+        type: 'GET',
+        beforeSend: function () { loadingStart(); },
+        success: function (data) {
+        $('#profileModalBody').html(data);
+        $("#ManageProfileModel").modal('show');
+        loadingStop();
+        },
+        error: function (xhr, status, error) {
+        console.error("Error loading profile data:", error);
+        $('#profileModalBody').html("<p>Error loading data.</p>");
+        $("#ManageProfileModel").modal('show');
+        loadingStop();
+        },
+        complete: function () { loadingStop(); }
+        });
+        });
+
+        $('button[data-bs-target="#navbarNav"]').click(function () {
+        $("#navbarNav").slideToggle();
+        });
+
+        // Search Menu Items
+        $("#txtSearch").on("keyup", function () {
+        let filter = $(this).val().toLowerCase().trim();
+        $(".MenucollapseInnerMenuListItem").each(function () {
+        let txt = $(this).find("span").attr("data-hover");
+        txt = txt ? txt.toLowerCase() : "";
+        $(this).toggle(txt.includes(filter));
+        });
+        });
+
+        });
+
+        function openProfile() {
+        $("#Profiledropdown").toggle();
+        }
+
+        function openNotify() {
+        $('#secondNotify').toggle();
+        }
+
+        function Close() {
+        $("#ManageProfileModel").modal('hide');
+        }
+
+        function loadingStart() {
+        let spinnerWrapper = document.getElementById('spinner-wrapper');
+        spinnerWrapper.style.display = 'flex';
+        }
+
+        function loadingStop() {
+        let spinnerWrapper = document.getElementById('spinner-wrapper');
+        spinnerWrapper.style.display = 'none';
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
+
+
+@* @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Monitoring</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/cust/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Monitoring.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/boxicons/animations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Devices/boxicons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Devices/boxicons.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Devices/tranformations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cust/header.css" asp-append-version="true" />    
+    <link rel="stylesheet" href="~/css/cust/mainnavigation.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cust/spinner.css" asp-append-version="true" />
+
+    <link rel="stylesheet" href="~/css/cust/user.js" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cust/navigation_submenu.js" asp-append-version="true" />
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.5/css/dataTables.dataTables.css" />    
+    <style>
+        .nav-link,.nav-link:hover,.nav-link:visited{
+            color:#fff !important;
+            font-size:0.9rem;
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-light custom-navbar custom-navbar-expand-lg">
+            <div class="container-fluid" style="display:flex; flex-direction:row;padding:0; margin:0; height:50px;">
+                <button class="gridIcon" type="button" data-bs-target="collapseMenuItemsList">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </button>
+                <a class="navbar-brand" href="javascript:void(0)" style="margin-left:5px; flex:1; min-width:0; display:flex; justify-content:start; align-items:center; overflow:hidden;">
+                    <img style="width:60px; height:40px; mix-blend-mode:multiply; flex-shrink:0;" src="~/img/ITAM logo.png" />
+                    <span class="brand-title">Endpoint Tracking &amp; Patch Management</span>
+                </a>
+               
+                <div class="nav-icons-bar" id="navIconsBar">
+
+    <!-- Reported Devices -->
+    <a href="javascript:void(0)" class="nav-icon-btn" title="Reported Devices">
+        <i class="bi bi-pc-display" aria-hidden="true"></i>
+        <span class="nav-icon-lbl">Reported Devices</span>
+        <span class="nav-icon-badge" id="ic-reported-badge" style="background:#185fa5;">
+            <span id="span-reported-devices">0</span>
+        </span>
+    </a>
+
+    <!-- Approved Devices -->
+    <a href="javascript:void(0)" class="nav-icon-btn" title="Approved Devices">
+        <i class="bi bi-check-circle" aria-hidden="true"></i>
+        <span class="nav-icon-lbl">Approved</span>
+        <span class="nav-icon-badge" id="ic-approved-badge" style="background:#1d9e75;">
+            <span id="span-approved-devices">0</span>
+        </span>
+    </a>
+
+    <!-- UnApproved Devices -->
+    <a href="javascript:void(0)" class="nav-icon-btn" title="UnApproved Devices">
+        <i class="bi bi-x-circle" aria-hidden="true"></i>
+        <span class="nav-icon-lbl">Unapproved</span>
+        <span class="nav-icon-badge" id="ic-unapproved-badge" style="background:#e24b4a;">
+            <span id="span-unapproved-devices">0</span>
+        </span>
+    </a>
+
+    <div class="nav-icon-sep"></div>
+
+    <!-- Sync Repository -->
+    <a asp-action="Index" asp-controller="CISRepo" class="nav-icon-btn" title="Sync Repository">
+        <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+        <span class="nav-icon-lbl">Sync Repo</span>
+    </a>
+
+
+
+    <!-- Desktop Policy -->
+    <a asp-action="Index" asp-controller="WhitelistSoftware" class="nav-icon-btn" title="Desktop Policy">
+        <i class="bi bi-shield-check" aria-hidden="true"></i>
+        <span class="nav-icon-lbl">Policy</span>
+    </a>
+
+    <!-- Group -->
+    <a asp-action="Index" asp-controller="Grouping" class="nav-icon-btn" title="Group">
+        <i class="bi bi-grid" aria-hidden="true"></i>
+        <span class="nav-icon-lbl">Group</span>
+    </a>
+
+</div>
+                <div class="justify-content-between" id="navbarNav">
+                    @if(!User.Identity.IsAuthenticated)
+                    {
+                                        <ul class="navbar-nav flex-grow-1">
+                                            <li class="nav-item">
+                                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Signin">Signin</a>
+                                            </li>
+                                        </ul>
+                    }
+                    else
+                    {
+                                        <ul class="navbar-nav ms-auto">
+                                            <li class="nav-item">
+                                                <!-- Example single danger button  -->
+                                                <div class="btn-group">
+                                                        <button id="btnProfiledropdown" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true" onclick="openProfile()">
+                                                            @if(!string.IsNullOrEmpty(ViewBag.FirstName) && !string.IsNullOrEmpty(ViewBag.LastName))
+                                                            {
+                                                                @(ViewBag.FirstName[0].ToString().ToUpper() + "" + ViewBag.LastName[0].ToString().ToUpper())
+                                                            }
+                                                    </button>
+                                                    <div id="Profiledropdown" class="dropdown-menu dropdown-menu-start dropdown-menu-end dropdown-menu-container dropdown-menu-notify-xs" style="padding:0;">
+                                                        <div class="dropdown-menu-subcontainer">
+                                                            <div class="dropdown-menu-name-logout">
+                                                                <div class="dropdown-menu-name">
+                                                                    <h5>@(ViewBag.FirstName + " " + ViewBag.LastName)</h5>
+                                                                        <p class="text-muted" style="font-size:0.85rem; margin-top:-5px;">@ViewBag.Email</p>
+                                                                    <div style="position:relative; top:0; display:flex; flex-direction:column; font-size:small;">
+                                                                            <a href="javascript:void(0)" id="ManageProfile" data-bs-toggle="modal" data-bs-target="#ManageProfileModel"  title="Manage Profile">Manage Profile</a>
+                                                                            <a href="javascript:void(0)" id="ChangePassword" data-bs-toggle="modal" data-bs-target="#ManageProfileModel"  title="Change Password">Change Password</a>
+                                                                        <form id="logoutForm" asp-controller="Home" asp-action="Signout" method="post" style="display:inline;">
+                                                                            <a href="javascript:void(0);" title="Signout" onclick="document.getElementById('logoutForm').submit();">
+                                                                                Logout
+                                                                            </a>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                        @if (User.IsInRole("SuperAdmin"))
+                                        {
+                                                                            <div class="dropdown-menu-create">
+                                                                                <a href="javascript:void(0)" id="Register" class="dropdown-item" title="Register">Create New Account</a>
+                                                                            </div>
+                                        }
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>    
+    <main>
+        <div class="Menucollapse" id="collapseMenuItemsList">
+            <div class="MenucollapseInner">
+                <div class="MenucollapseInnerSearch">
+                    <span><i class="bi bi-search"></i></span>
+                    <input id="txtSearch" type="text" placeholder="Find Insite Apps" />
+                </div>
+                <div class="MenucollapseInnerMenuList">
+                    <a href="javascript:void(0)" data-url="/" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-house"
+                       data-bs-icon-hover="bi bi-house-fill">
+                        <i class="bi bi-house"></i>
+                        <span data-leftmenu="true" data="Home" data-hover="Home">Home</span>
+                    </a>
+                    <a href="javascript:void(0)" data-url="/Home/Navigation/2" target="_blank" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-pc-display-horizontal"
+                       data-bs-icon-hover="bi bi-pc-display-horizontal">
+                        <i class="bi bi-pc-display-horizontal"></i>
+                        <span data-leftmenu="true" data="WorkStation ..." data-hover="WorkStation Hub">WorkStation ...</span>
+                    </a>
+                    <a href="javascript:void(0)" data-url="/Home/Navigation/3" target="_blank" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-tools"
+                       data-bs-icon-hover="bi bi-tools">
+                        <i class="bi bi-tools"></i>
+                        <span data-leftmenu="true" data="Service ..." data-hover="Service Desk">Service ...</span>
+                    </a>
+                    <a href="javascript:void(0)" data-url="/Home/Navigation/4" target="_blank" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-boxes"
+                       data-bs-icon-hover="bi bi-boxes">
+                        <i class="bi bi-boxes"></i>
+                        <span data-leftmenu="true" data="General ..." data-hover="General Asset Register">General ...</span>
+                    </a>
+                    <a href="javascript:void(0)" data-url="/Home/Navigation/5" target="_blank" class="MenucollapseInnerMenuListItem"
+                       data-bs-icon="bi bi-speedometer2"
+                       data-bs-icon-hover="bi bi-speedometer2">
+                        <i class="bi bi-speedometer2"></i>
+                        <span data-leftmenu="true" data="Monitoring" data-hover="Monitoring">Monitoring</span>
+                    </a>
+                   
+                </div>
+            </div>
+        </div>
+        <div class="wrapper">
+            <div class="main view-content" id="MainBody">
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+    <footer class="footer text-muted">
+        Copyright&nbsp;
+        <strong>
+            &copy; <span id="spanDate">@DateTime.Now.Year</span>
+            <a target="_blank" href="https://www.cybermateinnovations.com/">Cybermate Innovations LLP</a>.
+        </strong>
+        &nbsp;All rights reserved.
+    </footer>    
+    <div id="spinner-wrapper">
+        <div class="lds-spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="loading-text">Loading...</div>
+    </div>
+    <div class="modal fade" id="ManageProfileModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" id="profileModalBody">
+            </div>
+        </div>
+    </div>
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999; margin-top: 60px;">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMessage">
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Inject SSO URL safely from server config -->
+    <script>
+        window.__SSO_BASE_URL__ = '@Configuration["SSOServer:Login"]';
+    </script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>    
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>    
+    <script src="https://cdn.datatables.net/2.0.5/js/dataTables.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>    
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/tags.js" asp-append-version="true"></script>
+    <script src="~/js/approvals.js" asp-append-version="true"></script>
+    <script src="~/js/cust/navigation_submenu.js" asp-append-version="true"></script>
+    <script src="~/js/cust/cust.js" asp-append-version="true"></script>
+    <script src="~/js/cust/user.js" asp-append-version="true"></script>
+    <script src="~/js/cust/session.js" asp-append-version="true"></script>
+    <script src="~/js/cust/cis_auto_sync.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function(){
+
+            // Manage Profile
+            //document.getElementById('ManageProfile').addEventListener('click', function () {
+            $("#ManageProfile").on('click', function () {                
+                // $('#profileModalBody').attr('width', '350px');
+                // data-bs-toggle="modal" data-bs-target="#ManageProfileModel"
+                $(this).attr('data-bs-toggle', 'modal').attr('data-bs-target', '#ManageProfileModel');
+                $.ajax({
+                    url: '@Url.Action("ManageProfile", "Account")', // Replace with your actual controller name
+                    type: 'GET',
+                    beforeSend: function () {
+                        loadingStart(); // Call before sending the request
+                    },
+                    success: function (data) {
+                        $('#profileModalBody').html(data); // Load the partial view into the modal
+                        $("#ManageProfileModel").modal('show');
+                        // Wait for the DOM to finish rendering
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                loadingStop();
+                            });
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error loading profile data:", error);
+                        $('#profileModalBody').html("<p>Error loading data.</p>"); // Display error message
+                        $("#ManageProfileModel").modal('show');
+                        loadingStop();
+                    },
+                    complete: function () {
+                        loadingStop(); // Always called after success or error
+                    }
+                });
+            });
+
+            // Change Password
+            $("#ChangePassword").on('click', function () {
+                // data-bs-toggle="modal" data-bs-target="#ManageProfileModel"
+                $(this).attr('data-bs-toggle', 'modal').attr('data-bs-target', '#ManageProfileModel');
+                $.ajax({
+                    url: '@Url.Action("ChangePassword", "Account")', // Replace with your actual controller name
+                    type: 'GET',
+                    beforeSend: function () {
+                        loadingStart(); // Call before sending the request
+                    },
+                    success: function (data) {
+                        $('#profileModalBody').html(data); // Load the partial view into the modal
+                        $("#ManageProfileModel").modal('show');
+                        loadingStop();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error loading profile data:", error);
+                        $('#profileModalBody').html("<p>Error loading data.</p>"); // Display error message
+                        $("#ManageProfileModel").modal('show');
+                        loadingStop();
+                    },
+                    complete: function () {
+                        loadingStop(); // Always called after success or error
+                    }
+                });
+            });
+
+            // Registration
+            $("#Register").on('click', function () {
+                // data-bs-toggle="modal" data-bs-target="#ManageProfileModel"
+                $(this).attr('data-bs-toggle', 'modal').attr('data-bs-target', '#ManageProfileModel');
+                $.ajax({
+                    url: '@Url.Action("Register", "Account")', // Replace with your actual controller name
+                    type: 'GET',
+                    beforeSend: function () {
+                        loadingStart(); // Call before sending the request
+                    },
+                    success: function (data) {
+                        $('#profileModalBody').html(data); // Load the partial view into the modal
+                        $("#ManageProfileModel").modal('show');
+                        loadingStop();
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error loading profile data:", error);
+                        $('#profileModalBody').html("<p>Error loading data.</p>"); // Display error message
+                        $("#ManageProfileModel").modal('show');
+                        loadingStop();
+                    },
+                    complete: function () {
+                        loadingStop(); // Always called after success or error
+                    }
+                });
+            });
+
+            $('button[data-bs-target="#navbarNav"]').click(function () {
+                $("#navbarNav").slideToggle();
+            });
+
+            // Search Menu Items
+            $("#txtSearch").on("keyup", function () {
+                let filter = $(this).val().toLowerCase().trim();
+
+                $(".MenucollapseInnerMenuListItem").each(function () {
+
+                    // Get search text from span
+                    let txt = $(this).find("span").attr("data-hover");
+
+                    // Prevent error if attribute is missing
+                    txt = txt ? txt.toLowerCase() : "";
+
+                    // Show/Hide based on match
+                    $(this).toggle(txt.includes(filter));
+                });
+            }); 
+
+        });
+
+        function openProfile(){
+            $("#Profiledropdown").toggle();
+        }
+        function openNotify(){
+            $('#secondNotify').toggle();
+        }
+
+        function Close() {
+            $("#ManageProfileModel").modal('hide');
+        }
+        function loadingStart() {
+            let spinnerWrapper = document.getElementById('spinner-wrapper');
+            spinnerWrapper.style.display = 'flex';
+        }
+
+        function loadingStop() {
+            let spinnerWrapper = document.getElementById('spinner-wrapper');
+            spinnerWrapper.style.display = 'none';
+        }
+    </script>    
+    @await RenderSectionAsync("Scripts", required: false)    
+</body>
+</html> *@

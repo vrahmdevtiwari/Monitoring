@@ -1,0 +1,304 @@
+﻿@model Monitoring.Models.DTO.OSPatches
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "App Management";
+}
+
+@section Styles
+{
+        <link rel="stylesheet" href="~/css/Devices/devices.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/cust/home.css" asp-append-version="true" />
+}
+
+@{
+    var type = Context.Request.Query["type"].ToString();
+    var tableId = "";
+
+    if (type == "availablesoftwares")
+    {
+        tableId = "availablesoftwaretable";
+    }
+    else if (type == "installedsoftwares")
+    {
+        tableId = "installedsoftwarestable";
+    }
+
+    var availableTabClass = ViewBag.Tab == "availablesoftwares" ? "nav-link active" : "nav-link";
+    var installedTabClass = ViewBag.Tab == "installedsoftwares" ? "nav-link active" : "nav-link";
+}
+
+<input id="hfsystemid" type="hidden" value="@Model.SystemID" />
+
+<div style="padding:20px 10px;">
+
+<div style="display:flex;justify-content:space-between;width:100%;">
+    <h5>Software Installation on '@Model.DeviceName' Device</h5>
+
+    <a asp-action="Index" asp-controller="Home"
+       style="text-decoration:none;background-color:#0d6efd;color:#fff;display:flex;padding:3px;position:relative;top:-7px;">
+        <span style=" padding:2px 7px; border-right:1px solid #bcd7fe;display:flex; justify-content:center; align-items:center;">Back to</span>
+        <span style="width:38px;height:38px;display:flex;justify-content:center;align-items:center;">
+            <i class="fas fa-home"></i>
+        </span>
+    </a>
+</div>
+
+<ul class="nav device-model-nav" id="softwareTabs">
+
+<li class="nav-item device-model-nav-item">
+<a class="@availableTabClass"
+   data-type="availablesoftwares"
+   data-tableid="availablesoftwaretable"
+   href="javascript:void(0)">
+Available Softwares
+(<span id="sp-softwares-available">@Model.OSPatchesCount.AvailablePatchesCount</span>)
+</a>
+</li>
+
+<li class="nav-item device-model-nav-item">
+<a class="@installedTabClass"
+   data-type="installedsoftwares"
+   data-tableid="installedsoftwarestable"
+   href="javascript:void(0)">
+Installed Softwares
+(<span id="sp-softwares-installed">@Model.OSPatchesCount.InstalledPatchesCount</span>)
+</a>
+</li>
+<li class="nav-item device-model-nav-item ms-auto">
+                        <div style="position: relative; display: inline-block; min-width: 300px;">
+                            <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; pointer-events: none;"></i>
+
+                            <input id="txt_patch_search" type="text" class="form-control" data-target-table="@tableId" placeholder="Search..." 
+                                   style="width: 100%; padding-left: 35px; padding-right: 35px;"
+                                   oninput="document.getElementById('clearSearch').style.display = this.value ? 'block' : 'none';">
+
+                            <i class="fas fa-times" id="clearSearch" 
+                           style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; cursor: pointer; display: none;"
+                           onclick="var input = document.getElementById('txt_patch_search'); var tableId = input.getAttribute('data-target-table'); input.value = ''; this.style.display = 'none'; if(tableId) { $('#' + tableId + ' tbody tr.no-data-row').remove(); $('#' + tableId + ' tbody tr').show(); } input.focus();"></i>
+                        </div>
+                    </li>
+</ul>
+
+    @if (TempData["ResultMessage"] != null)
+    {
+                    <div class="toast-container position-fixed top-0 end-0 p-3"  style="z-index: 9999; margin-top: 60px;">
+                        <div id="liveToast" class="toast align-items-center text-bg-@(TempData["AlertType"]) text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                        @TempData["ResultMessage"]
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                                    data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+    }
+
+<div id="div-available-patch-table-container" style="padding:10px 0;">
+
+        @if (ViewBag.Tab == "availablesoftwares")
+        {
+
+    <form id="patchForm" method="post" action="@Url.Action("SubmitPatches","AppManagement")">
+
+    <div class="div-approved-table">
+
+    <table id="availablesoftwaretable" class="table" style="width:99.5%;">
+
+    <thead class="div-table-header-fixed">
+    <tr>
+    <th style="width:5px"><input type="checkbox" id="chk-select-all"/></th>
+    <th>App Name</th>
+                                @* <th>File Name</th> *@
+    <th>App Version</th>
+    <th>App BitRate</th>
+    <th>App ID</th>
+    <th>KB Number</th>
+    <th>Status</th>
+    </tr>
+    </thead>
+
+    <tbody id="availablepatchtablebody" style="text-align:center;">
+
+                            @if (Model != null && Model.AvailablePatches.Any())
+                            {
+
+                                foreach (var patch in Model.AvailablePatches)
+                                {
+
+                                    string status = patch.PatchStatus;
+
+                                    if (string.IsNullOrWhiteSpace(status))
+                                    {
+                                        status = "Installing";
+                                    }
+
+                                    bool disableCheckbox =
+                                    status.Equals("Installing", StringComparison.OrdinalIgnoreCase)
+                                    || status.Equals("Installation successful", StringComparison.OrdinalIgnoreCase);
+
+                                    string statusClass =
+                                    status.Equals("Available", StringComparison.OrdinalIgnoreCase)
+                                    ? "text-green"
+                                    : "text-red";
+
+                                    <tr>
+
+                                    <td>
+
+                                    <input type="checkbox"
+                                    class="chk-patch"
+                                    name="SelectedPatches"
+                                    value="@Model.SystemID|@patch.PatchID"
+                                    id="patch-@Model.SystemID-@patch.PatchID"
+                                                                    @(disableCheckbox ? "disabled" : "") />
+
+                                    </td>            
+                                    <td>@patch.PatchName</td>
+                                                                @* <td>@patch.PatchName</td> *@
+                                    <td>@patch.PatchOS</td>
+                                    <td>@patch.PatchBitRate</td>
+                                    <td>@patch.PatchID</td>
+                                    <td>@patch.KBNumber</td>
+
+                                    <td>
+                                    <span id="status-@patch.PatchID" class="@statusClass">
+                                                                        @status
+                                    </span>
+                                    </td>
+
+                                    </tr>
+
+                                }
+
+                            }
+                            else
+                            {
+                                    <tr>
+                                    <td colspan="8">no software available...</td>
+                                    </tr>
+                            }
+
+    </tbody>
+
+    </table>
+         <div id="patchModal" style="margin:10px 0; width:300px;display:none;">
+                <label for="installDateTime" class="form-label">Schedule Installation</label>
+                <input type="datetime-local"
+                       id="installDateTime"
+                       name="InstallDateTime"
+                       class="form-control"
+                       form="patchForm"
+                       >        
+                </div>
+            <button type="submit" class="btn btn-primary" id="btn-install" disabled>Install now</button>                
+            <button type="button" class="btn btn-primary" id="btn-install-later" disabled>Install later</button>
+
+    </div>
+    </form>
+
+        }
+
+        else if (ViewBag.Tab == "installedsoftwares")
+        {
+
+    <div class="div-approved-table">
+
+    <table id="installedsoftwarestable" class="table">
+
+    <thead>
+    <tr>
+    <th>App Name</th>
+    <th>Provider</th>
+    <th>Size</th>
+    <th>Installed On</th>
+    <th>Version</th>
+    </tr>
+    </thead>
+
+    <tbody style="text-align:center;">
+
+                        @if (Model != null && Model.InstalledApps.Any())
+                        {
+                            foreach (var app in Model.InstalledApps)
+                            {
+            <tr>
+            <td>@app.AppName</td>
+            <td>@app.Provider</td>
+            <td>@app.Size</td>
+            <td>@app.InstalledOn</td>
+            <td>@app.Version</td>
+            </tr>
+                            }
+                        }
+                        else
+                        {
+        <tr>
+        <td colspan="5">no installed apps available...</td>
+        </tr>
+                        }
+
+    </tbody>
+    </table>
+
+    </div>
+
+        }
+
+</div>
+</div>
+
+@section Scripts
+{
+
+    <script src="~/js/cust/home.js" asp-append-version="true"></script>
+    <script src="~/js/cust/patch.js" asp-append-version="true"></script>
+
+    <script>
+
+            document.addEventListener("DOMContentLoaded", function () {
+                                        var toastEl = document.getElementById('liveToast');
+                                        if (toastEl) {
+                                            var toast = new bootstrap.Toast(toastEl);
+                                            toast.show();
+                                        }
+                                    });
+
+    $(document).ready(function(){
+            //Prevent Past Date Selection
+                                     let now = new Date().toISOString().slice(0,16);
+                                     $('#installDateTime').attr('min', now);
+
+                                         $('#installDateTime').on('change input', function () {
+
+                let selected = $(this).val();
+
+                if (selected) {
+
+                    let selectedDate = new Date(selected);
+                    let now = new Date();
+
+                    // Check valid future date
+                    if (selectedDate > now) {
+                        $('#btn-install').prop('disabled', false);
+                    } else {
+                        $('#btn-install').prop('disabled', true);
+                    }
+
+                } else {
+                    $('#btn-install').prop('disabled', true);
+                }
+
+            });
+    
+
+    let systemIds=$("#hfsystemid").val();
+
+    pollPatchStatus(systemIds);
+
+    });
+
+    </script>
+
+}

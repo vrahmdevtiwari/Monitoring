@@ -1,0 +1,35 @@
+﻿
+@{
+    // Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Loading";
+}
+
+<style>
+              .image-container {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin:0px;
+                padding: 2px;
+            }
+
+            .img_error {
+                min-width: 100px;
+                max-width: 300px;
+            }
+
+            @@media (max-height: 720px) {
+                .img_error {
+                    width: 250px; 
+                }
+            }
+        </style>
+
+<div class="image-container">
+        <img class="img_error" src="/img/loading.gif" alt="Loading Image">
+        <h1 style="font-size: 3rem; text-align: center;"><b>Loading</b></h1>
+        <p style="font-size: 1.5rem; text-align: center;">We are fetching data, please wait...</p>
+        @* <a style="text-align: center;" class="btn btn-info" asp-controller="WorkStation" asp-action="Index">  Back  </a>        *@
+    </div>

@@ -1,0 +1,61 @@
+﻿@model List<Monitoring.Models.DTO.AgentManagerDeviceList>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "AgentManager";
+}
+<head>
+    <link rel="stylesheet" type="text/css" href="~/css/Devices/devices.css">
+</head>
+<h2 id="Main-Title">Update Queue</h2>
+<div class="Devices-Container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="Device-Table" class="table table-bordered table-hover sortable">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'Device-Table')" class="device-table-header">Device Name</th>
+                        <th onclick="sortTable(1, 'Device-Table')" class="device-table-header">Login User</th>
+                        <th onclick="sortTable(2, 'Device-Table')" class="device-table-header">Domain</th>
+                        <th onclick="sortTable(3, 'Device-Table')" class="device-table-header">Privileges</th>
+                        <th onclick="sortTable(4, 'Device-Table')" class="device-table-header">Manufacturer</th>
+                        <th onclick="sortTable(5, 'Device-Table')" class="device-table-header">Operating System</th>
+                        <th onclick="sortTable(6, 'Device-Table')" class="device-table-header">Public IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var device in Model)
+                    {
+                        <tr>
+                            
+                            <td class="device-table-detail">@device.SystemName</td>
+                            <td class="device-table-detail">@device.LoginUser</td>
+                            <td class="device-table-detail">@device.Domain</td>
+                            <td class="device-table-detail">@device.Privileges</td>
+                            <td class="device-table-detail">@device.Manufacturer</td>
+                            <td class="device-table-detail">@device.OS</td>
+                            <td class="device-table-detail">@device.PublicIP</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+</div>
+
+
+
+
+<script>
+        function selectAllDevices() {
+            var checkboxes = document.getElementsByClassName("device-checkbox");
+            var selectAllCheckbox = document.getElementById("selectAllCheckbox");
+
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = selectAllCheckbox.checked;
+            }
+        }
+</script>
+
+
+
+
+

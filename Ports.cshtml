@@ -1,0 +1,73 @@
+﻿@model List<Monitoring.Models.DTO.PortDetails>
+
+@* @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Ports";
+} *@
+
+                            @{
+    string GetLocalAddress(string address)
+    {
+        try
+        {
+            int lastIndex = address.LastIndexOf(':');
+            return lastIndex >= 0 ?  address.Substring(0, lastIndex)  : "-";
+        }
+        catch
+        {
+            return "-";
+        }
+    }
+
+    string GetLocalPort(string address)
+    {
+        try
+        {
+            int lastIndex = address.LastIndexOf(':');
+            return lastIndex >= 0 ? address.Substring(lastIndex + 1) : "-";
+        }
+        catch
+        {
+            return "-";
+        }
+    }
+}
+
+
+<div class="main-container">
+    @* <h2>Ports - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allPorts-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allPorts-table')" class="port-table-header sortable-header">Name  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allPorts-table')" class="port-table-header sortable-header">Process ID  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allPorts-table')" class="port-table-header sortable-header">Local Address <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allPorts-table')" class="port-table-header sortable-header">Local Port  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allPorts-table')" class="port-table-header sortable-header">Remote Address <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(5, 'allPorts-table')" class="port-table-header sortable-header">Remote Port  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(6, 'allPorts-table')" class="port-table-header sortable-header">Protocol  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(7, 'allPorts-table')" class="port-table-header sortable-header">State  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var port in Model)
+                    {
+                        <tr>
+                            <td class="port-table-detail">@port.ProcessName</td>
+                            <td class="port-table-detail">@port.PID</td>
+                            <td class="port-table-detail">@GetLocalAddress(port.LocalAddress)</td>
+                            <td class="port-table-detail">@GetLocalPort(port.LocalAddress)</td>
+                            <td class="port-table-detail">@GetLocalAddress(port.ForeignAddress)</td>
+                            <td class="port-table-detail">@GetLocalPort(port.ForeignAddress)</td>
+                            <td class="port-table-detail">@port.Proto</td>
+                            <td class="port-table-detail">@port.State</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

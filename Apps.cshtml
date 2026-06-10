@@ -1,0 +1,53 @@
+﻿@model List<Monitoring.Models.DTO.AppsDTO>
+
+@* @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Apps";
+} *@
+
+<head>
+    <link rel="stylesheet" type="text/css" href="~/css/apps/appinfo.css">
+</head>
+
+@{ var rowCount = Model.Count; }
+
+<div class="main-container">
+    @* <h2>Apps - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allApps-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th onclick="sortTable(0, 'allApps-table')" class="app-table-header sortable-header">Name <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    <th onclick="sortTable(1, 'allApps-table')" class="app-table-header sortable-header">Publisher <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    <th onclick="sortTable(2, 'allApps-table')" class="app-table-header sortable-header">Installed On <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    <th onclick="sortTable(3, 'allApps-table')" class="app-table-header sortable-header">Size <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    <th onclick="sortTable(4, 'allApps-table')" class="app-table-header sortable-header">Version <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                </tr>
+            </thead>
+
+
+
+                <tbody>
+                    @foreach (var app in Model)
+                    {
+                        <tr>
+                            <td class="app-table-detail">@app.AppName</td>
+                            <td class="app-table-detail">@app.Provider</td>
+                            <td class="app-table-detail">@app.InstalledOn</td>
+                            <td style="text-align:right;" class="app-table-detail">@app.Size</td>
+                            <td class="app-table-detail">@app.Version</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+

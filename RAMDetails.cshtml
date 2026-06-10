@@ -1,0 +1,52 @@
+﻿@model List<Monitoring.Models.DTO.RAMDetailsDTO>
+
+@* @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Services";
+} *@
+
+@* <style>
+    .table-container {
+        max-width: 1200px;
+    }
+</style> *@
+
+<div class="main-container">
+    @* <h2>Services - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allRAMDetails-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allRAMDetails-table')" class="port-table-header sortable-header">Bank Label  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allRAMDetails-table')" class="port-table-header sortable-header">Capacity  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allRAMDetails-table')" class="port-table-header sortable-header">Description  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allRAMDetails-table')" class="port-table-header sortable-header">Manufacturer  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allRAMDetails-table')" class="port-table-header sortable-header">Memory Type  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(5, 'allRAMDetails-table')" class="port-table-header sortable-header">Part Number  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(6, 'allRAMDetails-table')" class="port-table-header sortable-header">Serial Number  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(7, 'allRAMDetails-table')" class="port-table-header sortable-header">Speed  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(8, 'allRAMDetails-table')" class="port-table-header sortable-header">SMBIOS Memory type  <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var rAM in Model)
+                    {
+                        <tr>
+                            <td class="port-table-detail">@rAM.BankLabel</td>
+                            <td class="port-table-detail">@rAM.Capacity</td>
+                            <td class="port-table-detail">@rAM.Description</td>
+                            <td class="port-table-detail">@rAM.Manufacturer</td>
+                            <td class="port-table-detail">@rAM.MemoryType</td>
+                            <td class="port-table-detail">@rAM.PartNumber</td>
+                            <td class="port-table-detail">@rAM.SerialNumber</td>
+                            <td class="port-table-detail">@rAM.Speed</td>
+                            <td class="port-table-detail">@rAM.SMBIOSMemoryType</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

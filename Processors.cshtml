@@ -1,0 +1,48 @@
+﻿@model List<Monitoring.Models.DTO.ProcessorDTO>
+
+@* @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Processors";
+}
+
+<style>
+    .table-container {
+        max-width: 1200px;
+    }
+</style> *@
+
+<div class="main-container">
+    @* <h2>Processors - <span id="assetId-title">@ViewData["assetId"]</span></h2> *@
+    <div class="table-container">
+        <div class="Table-Container table-responsive table-responsive-md">
+            <table id="allProcessors-table" class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th onclick="sortTable(0, 'allProcessors-table')" class="port-table-header sortable-header">Device ID <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(1, 'allProcessors-table')" class="port-table-header sortable-header">Name <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(2, 'allProcessors-table')" class="port-table-header sortable-header">Manufacturer <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(3, 'allProcessors-table')" class="port-table-header sortable-header">Max Clock Speed <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(4, 'allProcessors-table')" class="port-table-header sortable-header">Cores <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(5, 'allProcessors-table')" class="port-table-header sortable-header">Logical Processors <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                        <th onclick="sortTable(6, 'allProcessors-table')" class="port-table-header sortable-header">Processor Id <span class="arrow up">&#9650;</span><span class="arrow down">&#9660;</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var processor in Model)
+                    {
+                        <tr>
+                            <td class="port-table-detail">@processor.DeviceID</td>
+                            <td class="port-table-detail">@processor.Name</td>
+                            <td class="port-table-detail">@processor.Manufacturer</td>
+                            <td class="port-table-detail">@processor.MaxClockSpeed MHz</td>
+                            <td class="port-table-detail">@processor.Cores</td>
+                            <td class="port-table-detail">@processor.LogicalProcessors</td>
+                            <td class="port-table-detail">@processor.ProcessorId</td>
+                        </tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

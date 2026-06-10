@@ -1,0 +1,133 @@
+﻿@model List<DeviceList>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Overview";
+}
+<head>
+    <link rel="stylesheet" type="text/css" href="~/css/Devices/devices.css">
+</head>
+<h2 id="Main-Title">Approved Devices</h2>
+<div class="Devices-Container">
+    <div class="Table-Container table-responsive table-responsive-md">
+        <table id="Device-Table" class="table table-bordered table-hover sortable">
+            <thead class="table-dark">
+                <tr>
+                    <th onclick="sortTable(0, 'Device-Table')" class="device-table-header">Device Name</th>
+                    <th onclick="sortTable(1, 'Device-Table')" class="device-table-header">Login User</th>
+                    <th onclick="sortTable(2, 'Device-Table')" class="device-table-header">Domain</th>
+                    <th onclick="sortTable(3, 'Device-Table')" class="device-table-header">Privileges</th>
+                    <th onclick="sortTable(4, 'Device-Table')" class="device-table-header">Manufacturer</th>
+                    <th onclick="sortTable(5, 'Device-Table')" class="device-table-header">Operating System</th>
+                    <th onclick="sortTable(6, 'Device-Table')" class="device-table-header">Public IP</th>
+                    <th onclick="sortTable(7, 'Device-Table')" class="device-table-header">In Asset Register?</th>
+                    <th onclick="sortTable(8, 'Device-Table')" class="device-table-header">Status</th>
+                    <th onclick="sortTable(9, 'Device-Table')" class="device-table-header">Action</th>
+                </tr>
+            </thead>
+            <tbody class="devicesBody">
+                @foreach (var device in Model)
+                {
+                    <tr>
+                        <td class="device-table-detail">@device.SystemName</td>
+                        <td class="device-table-detail">@device.LoginUser</td>
+                        <td class="device-table-detail">@device.Domain</td>
+                        <td class="device-table-detail">@device.Privileges</td>
+                        <td class="device-table-detail">@device.Manufacturer</td>
+                        <td class="device-table-detail">@device.OS</td>
+                        <td class="device-table-detail">@device.PublicIP</td>
+                        <td class="device-table-detail">
+                            @if (device.InITAM.ToString().Contains("Add"))
+                            {
+                                <span>
+                                    <a href="javascript:void(0);" onclick="Details('@device.ID.ToString()')" class="btn btn-custom-primary" data-id="@device.ID.ToString()">Add in ITAM Registry</a>
+                                </span>
+                            }
+                            else if (device.InITAM.ToString().Contains("Link"))
+                            {
+                                <span>
+                                    <form asp-action="LinkWorkstation" asp-controller="Workstation" method="post" style="display:inline;">
+                                        <input type="hidden" name="ID" value="@device.ID.ToString()" />
+                                        <button type="submit" class="btn btn-custom-secondary">@device.InITAM.ToString()</button>
+                                    </form>
+                                </span>
+                            }
+                            else
+                            {
+                                <span>
+                                    @device.InITAM.ToString()
+                                </span>
+                            }
+                        </td>
+                        <td class="device-table-detail">
+                            @if (device.Status.ToLower() == "online")
+                            {
+                                <span style="display:flex; justify-content: center; align-items: center">
+                                    <box-icon style="width:8px; margin-right: 5px" name='circle' type='solid' color='#03bb07'></box-icon> 
+                                    <span>Online</span> 
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="display:flex; justify-content: center; align-items: center">
+                                    <box-icon style="width:8px; margin-right: 5px" name='circle' type='solid' color='#d80404'></box-icon> 
+                                    <span>Offline</span>    
+                                </span>
+                            }
+                        </td>
+                        <td class="device-table-detail">
+                            <a asp-action="DeviceInfo" asp-controller="Workstation" asp-route-ID="@device.ID.ToString()" class="btn btn-dark">Info</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <!-- My modal: -->
+    <div id="form-modal" class="modal" tabindex="-1" role="dialog" aria-labelledby="detailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="detailLabel">Add Device In Registry</h3>
+                @* <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button> *@
+            </div>
+            <div class="modal-body">
+                <!-- Display validation summary -->
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <form asp-action="AddWorkstation" asp-route-BIOS="@ViewBag.BIOS" asp-route-Obj="@ViewBag.Obj" method="post" class="form-horizontal form-container">
+                    <!-- Form fields go here -->
+                    <div class="btn-submit">
+                        <input type="submit" value="Add Workstation" class="btn btn-success" />
+                        <a type="submit" asp-action="Index" asp-controller="Workstation" class="btn btn-danger">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#approvedDeviceSearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+
+    function Details(id) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("AddInRegistry", "Workstation")' + '?ID=' + id,
+            success: function (res) {
+                $("#Modal .modal-body").html(res);
+                $("#Modal").modal('show');
+            }
+        });
+    }
+</script>

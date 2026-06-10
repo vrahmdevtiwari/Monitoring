@@ -1,0 +1,103 @@
+﻿@model Monitoring.ViewModel.DesktopPoliciesDTO
+
+<!-- Display validation summary -->
+                @* <div asp-validation-summary="All" class="text-danger"></div> *@
+      <form id="createDesktopPolicyForm"
+      asp-controller="WhitelistSoftware"
+      asp-action="Create"
+      method="post"
+      class="form-horizontal form-container">
+                    <!-- Form fields go here -->
+                    <div class="row">
+    <div class="col-sm-12 col-md-6 col-lg-6">
+        <label asp-for="SoftwareName" class="form-label"></label>
+                <input asp-for="SoftwareName" class="form-control" />
+                <span asp-validation-for="SoftwareName" class="text-danger"></span>
+    </div>
+    @* <div class="col-sm-12 col-md-6 col-lg-6">
+        <label asp-for="Size" class="form-label"></label>
+                <input asp-for="Size" class="form-control" />
+                <span asp-validation-for="Size" class="text-danger"></span>
+    </div> *@
+    <div class="col-sm-12 col-md-6 col-lg-6">
+        <label asp-for="Version" class="form-label"></label>
+                <input asp-for="Version" class="form-control" />
+                <span asp-validation-for="Version" class="text-danger"></span>
+    </div>
+    @* <div class="col-sm-12 col-md-6 col-lg-6">
+        <label asp-for="BitRate" class="form-label"></label>
+                <select asp-for="BitRate" class="form-control">
+                    <option value="">-- Select Bit Rate --</option>
+                    <option value="X86">X86</option>
+                    <option value="X64">X64</option>
+                    <option value="Arm">Arm</option>
+                    <option value="Arm64">Arm64</option>
+                </select>
+                <span asp-validation-for="BitRate" class="text-danger"></span>
+    </div> *@
+    <div class="col-sm-12 col-md-6 col-lg-6">
+        <label asp-for="Platform" class="form-label"></label>
+               <select asp-for="Platform" class="form-select">
+                    <option value="">-- Select OS --</option>
+                    <option value="Windows 10">Windows 10</option>
+                    <option value="Windows 11">Windows 11</option>
+                </select>
+                <span asp-validation-for="Platform" class="text-danger"></span>
+    </div>
+</div>   
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 mt-4">
+                        <input type="submit" value="Add " class="btn btn-success" />
+                        @* <a type="submit" asp-action="Index" asp-controller="WhitelistSoftware" class="btn btn-danger">Cancel</a> *@
+                    </div>
+                </form>
+
+<script>
+    $(document).ready(function () {
+
+        $('#createDesktopPolicyForm').submit(function (e) {
+
+            e.preventDefault();
+
+            var form = $(this);
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+
+                success: function (res) {
+
+                    if (res.success) {
+
+                        $('.modal-body').html(
+                            '<div class="alert alert-success">' +
+                            res.message +
+                            '</div>'
+                        );
+
+                        setTimeout(function () {
+
+                            var modal = bootstrap.Modal.getInstance(
+                                document.getElementById('desktop_policy_modal')
+                            );
+
+                            modal.hide();
+
+                        }, 1500);
+                    }
+                    else {
+
+                        $('#desktop_policy_modal .modal-body').html(res);
+
+                    }
+                },
+
+                error: function () {
+                    alert("Something went wrong");
+                }
+            });
+
+        });
+
+    });
+</script>
